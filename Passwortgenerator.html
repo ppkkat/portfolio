@@ -1,0 +1,169 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Passwort Genarator</title>
+    <style>
+        form {
+            width: 300px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #1e1e1e;
+            border-radius: 12px;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        }
+
+        label {
+            font-size: 14px;
+            margin-left: 6px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 6px;
+            margin-bottom: 12px;
+            border-radius: 6px;
+            border: none;
+            background: #2c2c2c;
+            color: #fff;
+            font-size: 15px;
+        }
+
+        input[type="checkbox"] {
+            transform: scale(1.2);
+            margin-right: 6px;
+        }
+
+        #createPasswordbnt {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            background: #4CAF50;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #2c2c2c;
+            border-radius: 6px;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 2px;
+            color: #00e676;
+            user-select: all;
+        }
+    </style>
+</head>
+
+<body>
+    <form>
+
+        <label for="pwlength">Password Length(min = 0)</label>
+        <input type="number" id="pwlength" max="20" min="0" />
+        <br />
+
+        <input type="checkbox" id="lccheckbox" class="checkbox" />
+        <label for="lccheckbox">includeLowercase</label>
+        <br />
+
+        <input type="checkbox" id="upcheckbox" class="checkbox" />
+        <label for="upcheckbox">includeUppercase</label>
+        <br />
+
+        <input type="checkbox" id="nbcheckbox" class="checkbox" />
+        <label for="nbcheckbox">includeNumbers</label>
+        <br />
+
+        <input type="checkbox" id="sbcheckbox" class="checkbox" />
+        <label for="sbcheckbox">includeSymbols</label>
+        <br />
+
+        <button type="button" onclick="createPassword()" id="createPasswordbnt">Ready</button>
+
+        <p id="result"></p>
+
+    </form>
+    <script>
+        // Passwort Generator
+
+        function getPasswordInformation() {
+            const lengthInput = document.getElementById("pwlength");
+            const length = Number(lengthInput.value);
+            const maxLength = Number(lengthInput.max);
+
+            const includeLowercase = document.getElementById("lccheckbox").checked;
+            const includeUppercase = document.getElementById("upcheckbox").checked;
+            const includeNumbers = document.getElementById("nbcheckbox").checked;
+            const includeSymbols = document.getElementById("sbcheckbox").checked;
+
+            /*if (length > maxLength) {
+                window.alert("You can't go higher than " + maxLength);
+                length = "";
+                return { length: maxLength, includeLowercase, includeUppercase, includeNumbers, includeSymbols };
+            }
+            */
+
+            return { length, includeLowercase, includeUppercase, includeNumbers, includeSymbols };
+        }
+
+
+        function generatePassword(length, includeLowercase, includeUppercase, includeNumbers, includeSymbols) {
+
+            const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
+            const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const numbersChars = "0123456789";
+            const symbolsChars = "!@#$%^&*()_+-=";
+
+            let allowedChars = "";
+            let password = "";
+
+            if (includeLowercase) allowedChars += lowercaseChars;
+            if (includeUppercase) allowedChars += uppercaseChars;
+            if (includeNumbers) allowedChars += numbersChars;
+            if (includeSymbols) allowedChars += symbolsChars;
+
+            /*if (length <= 0) {
+                return "Password length must be at least 1.";
+            }
+            if (allowedChars.length === 0) {
+                return "At least one character type must be selected.";
+            }*/
+
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * allowedChars.length);
+                password += allowedChars[randomIndex];
+            }
+
+            return password;
+        }
+
+        function createPassword() {
+            const info = getPasswordInformation();
+            const password = generatePassword(
+                info.length,
+                info.includeLowercase,
+                info.includeUppercase,
+                info.includeNumbers,
+                info.includeSymbols
+            );
+
+            document.getElementById("result").textContent = password;
+        }
+    </script>
+</body>
+
+</html>

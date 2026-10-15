@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Rock Paper Scissors!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1{
+            font-size: 3.5rem;
+            color: black;
+        }
+        .choices {
+            margin-bottom: 30px;
+        }
+        .choices button {
+            font-size: 2.5rem;
+            padding: 10px 20px;
+            margin: 0 10px;
+            color: #333;
+            background-color: hsl(205, 100%, 50%);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .choices button:hover {
+            background-color: hsl(205, 100%, 80%);
+        }
+        .choices button:active {
+            background-color: hsl(205, 100%, 40%);
+        }
+        #playerDisplay, #computerDisplay {
+            font-size: 2.5rem;
+            margin: 10px 0;
+        }
+        #resultDisplay {
+            font-size: 3rem;
+            margin: 30px 0;   
+        }
+        .scoredisplay {
+            font-size: 2rem;
+            margin-top: 20px;
+        }
+        .greentext, #playerScore{
+            color: hsl(127, 100%, 50%);
+        }
+        .redtext, #computerScore{
+            color: hsl(0, 100%, 50%);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Rock - Paper - Scissors</h1>
+
+    <div class="choices">
+        <button onclick="playGame('fire')" id="fire">Fire</button>
+        <button onclick="playGame('cardboard')" id="cardboard">Cardboard</button>
+        <button onclick="playGame('water')" id="water">Water</button>
+    </div>
+
+    <div id="playerDisplay">Player: </div>
+    <div id="computerDisplay">Computer: </div>
+    <div id="resultDisplay"></div>
+
+    <div class="scoredisplay">
+        <p>Player Score: <span id="playerScore">0</span></p>
+        <p>Computer Score: <span id="computerScore">0</span></p>
+    </div>
+
+    <script>
+
+        const choices = ['fire', 'cardboard', 'water'];
+        const playerDisplay = document.getElementById('playerDisplay');
+        const computerDisplay = document.getElementById('computerDisplay');
+        const resultDisplay = document.getElementById('resultDisplay');
+        const playerScoreDisplay = document.getElementById('playerScore');
+        const computerScoreDisplay = document.getElementById('computerScore');
+
+        let playerScore = 0;
+        let computerScore = 0;
+
+        function playGame(playerchoise) {
+            const computerChoise = choices[Math.floor(Math.random() * choices.length)];
+            let result = '';
+
+            if (playerchoise === computerChoise) {
+                result = "IT'S A TIE!";
+            }
+            else {
+                switch (playerchoise) {
+                    case 'fire':
+                        result = computerChoise === 'cardboard' ? "YOU LOSE!" : "YOU WIN!";
+                        break;  
+                    case 'cardboard':
+                        result = computerChoise === 'water' ? "YOU LOSE!" : "YOU WIN!";
+                        break;
+                    case 'water':
+                        result = computerChoise === 'fire' ? "YOU LOSE!" : "YOU WIN!";
+                        break;
+                }
+            }
+            playerDisplay.textContent = `Player: ${playerchoise}`;
+            computerDisplay.textContent = `Computer: ${computerChoise}`;
+            resultDisplay.textContent = result;
+
+            switch (result) {
+                case "YOU WIN!":
+                    playerScore++;
+                    playerScoreDisplay.textContent = playerScore;
+                    resultDisplay.className = 'greentext';
+                    break;
+                case "YOU LOSE!":
+                    computerScore++;
+                    computerScoreDisplay.textContent = computerScore;
+                    resultDisplay.className = 'redtext';
+                    break;
+                default:
+                    resultDisplay.className = '';
+            }
+
+            
+        }
+
+    </script>
+</body>
+</html>

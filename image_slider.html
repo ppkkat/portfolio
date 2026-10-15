@@ -1,0 +1,167 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <title>Formular Test</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #d9e4f5, #f4f4f4);
+            display: flex;
+            justify-content: center;
+            padding-top: 40px;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            width: 380px;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.15);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 12px;
+            color: #444;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+            input:focus, select:focus, textarea:focus {
+                border-color: #4CAF50;
+                box-shadow: 0 0 5px rgba(76,175,80,0.4);
+                outline: none;
+            }
+
+            input[type="radio"],
+            input[type="checkbox"] {
+                width: auto;
+                margin-right: 5px;
+            }
+
+        .radio-group {
+            margin-top: 5px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        input[type="file"] {
+            padding: 5px;
+            background: #fafafa;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+            button:hover {
+                background: #45a049;
+                transform: scale(1.02);
+            }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Formular</h1>
+
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" placeholder="Max" minlength="3" maxlength="15" required>
+
+        <label for="passwort">Passwort:</label>
+        <input type="password" id="passwort" name="passwort" placeholder="1234" minlength="5" maxlength="10" required>
+
+        <label for="email">E-Mail:</label>
+        <input type="email" id="email" name="email" placeholder="person@gmail.com" required>
+
+        <label for="phone">Telefon:</label>
+        <input type="tel" id="phone" name="phone" placeholder="123-456-7890"
+               pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}">
+
+        <label for="bday">Geburtstag:</label>
+        <input type="date" id="bday" name="bday">
+
+        <label for="kids">Kinder:</label>
+        <input type="number" id="kids" name="kids" min="0" value="0">
+
+        <label>Titel:</label>
+        <div class="radio-group">
+            <label><input type="radio" id="Mr" name="title" value="Mr"> Mr.</label>
+            <label><input type="radio" id="Ms" name="title" value="Ms"> Ms.</label>
+        </div>
+
+        <label for="human">Mensch:</label>
+        <select id="human" name="human">
+            <option value="Kid">Kid</option>
+            <option value="Adult">Adult</option>
+            <option value="Pensioner">Pensioner</option>
+        </select>
+
+        <label for="infected">Infiziert:</label>
+        <input type="checkbox" id="infected" name="infected">
+
+        <label for="command">Command:</label>
+        <textarea id="command" name="command" placeholder="Please enter how you got infected"></textarea>
+
+        <label for="file">Bild (PNG):</label>
+        <input type="file" id="file" name="file" accept="image/png">
+
+
+        <button type="submit" onclick="Send()">Absenden</button>
+
+
+    </div>
+
+    <script>
+        function Send() {
+            alert("Thanks for send a message.");
+        }
+    </script>
+
+</body>
+</html>

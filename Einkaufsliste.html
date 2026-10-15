@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Einkaufs Liste</title>
+    <style>
+        .container{
+            width: 100%;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #153677, #4e085f);
+            padding: 10px;
+        }
+        .todo-app{
+            width: 100%;
+            max-width: 540px;
+            background: #fff;
+            margin: 100px auto 20px;
+            padding: 40px 30px 70px;
+            border-radius: 10px;
+        }
+        .todo-app h2{
+            color: #002765;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .row{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #edeef0;
+            border-radius: 30px;
+            padding-left: 20px;
+            margin-bottom: 25px
+        }
+        input{
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 10px;
+            font-weight: 14;
+        }
+        button {
+            border: none;
+            outline: none;
+            padding: 16px 50px;
+            background: #ff5945;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 40px;
+        }
+        ul li{
+            list-style: none;
+            font-size: 17px;
+            padding: 12px 8px 12px 50px;
+            user-select: none;
+            position: relative;
+        }
+            ul li::before {
+                content: '';
+                position: absolute;
+                height: 28px;
+                width: 28px;
+                border-radius: 50%;
+                background-size: cover;
+                background-image: url(oval.png);
+                background-size: cover;
+                background-position: center;
+                top: 12px;
+                left: 8px;
+            }
+        
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="todo-app">
+            <h2>To-Do List </h2>
+            <div class="row">
+                <input type="text" id="input-box" placeholder="Add your Text" />
+                <button>Add</button>
+            </div>
+            <ul id="list-container">
+                <li>Task 1</li>
+                <li>Task 2</li>
+                <li>Task 3</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+
+        
+
+    </script>
+</body>
+</html>

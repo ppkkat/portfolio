@@ -1,0 +1,86 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Vielfacher Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input {
+            margin-top: 5px;
+            padding: 5px;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Vielfacher Generator</h1>
+
+    <label for="num">Num:</label>
+    <input type="number" id="num" placeholder="z.B. 2" min="0">
+
+    <label for="min">Min:</label>
+    <input type="number" id="min" placeholder="z.B. 4" min="0">
+
+    <label for="max">Max:</label>
+    <input type="number" id="max" placeholder="z.B. 8" min="0"><br />
+
+
+
+    <button onclick="generate()">Berechnen</button><br />
+    <button onclick="Reset()">Reset</button>
+
+    <div id="result"></div>
+
+    <script>
+        function generate() {
+            const num = parseInt(document.getElementById('num').value, 10);
+            const max = parseInt(document.getElementById('max').value, 10);
+            const min = parseInt(document.getElementById('min').value, 10);
+            const resultDiv = document.getElementById('result');
+
+            if (isNaN(num) || isNaN(max) || isNaN(min) || num <= 0 || max <= 0 || min <= 0) {
+                resultDiv.textContent = 'Bitte gib gültige positive Zahlen ein.';
+                return;
+            }
+
+            const arr = [];
+
+
+            let start = Math.ceil(min / num) * num;
+
+            for (let i = start; i <= max; i += num) {
+                arr.push(i);
+            }
+
+            resultDiv.textContent = `V(${num}) = { ${arr.join(', ')} }`;
+        }
+
+        function Reset() {
+            document.getElementById('num').value = "";
+            document.getElementById('max').value = "";
+            document.getElementById('min').value = "";
+            document.getElementById('result').textContent = "";
+        }
+    </script>
+
+</body>
+</html>
