@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -129,6 +130,7 @@
                 font-size: 1.15rem;
             }
         }
+
         body.geheim {
             background: #050505;
             color: #00ff66;
@@ -136,14 +138,14 @@
         }
 
         #nachricht {
-      display: none;
-      font-size: 25px;
-      margin-top: 30px;
-    }
+            display: none;
+            font-size: 25px;
+            margin-top: 30px;
+        }
 
-    body.geheim #nachricht {
-      display: block;
-    }
+        body.geheim #nachricht {
+            display: block;
+        }
 
         .geheimer-button {
             background: #050505;
@@ -171,7 +173,6 @@
             .geheimer-button:active {
                 transform: scale(0.95);
             }
-
     </style>
 </head>
 <body>
@@ -223,17 +224,16 @@
     </div>
 
     <div id="nachricht">
-        GEHEIMER MODUS AKTIVIERT!<br><br>
-        Willkommen, Hacker
+
     </div>
 
     <script>
 
-            
 let eingabe = "";
 const geheimCode = "123";
 const nachricht = document.getElementById("nachricht");
 let isGeheimerModus = false;
+let isSuperGeheimerModus = false;
 
 let count = 0;
 
@@ -241,67 +241,78 @@ let count = 0;
 const countLabel = document.getElementById("countlabel");
 
 function increaseCount() {
-    count++;
-    countLabel.textContent = count;
+            count++;
+            countLabel.textContent = count;
 }
 
 function decreaseCount() {
-    count--;
-    countLabel.textContent = count;
+            count--;
+            countLabel.textContent = count;
 }
 
 function resetCount() {
-    count = 0;
-    countLabel.textContent = count;
+            count = 0;
+            countLabel.textContent = count;
 }
 
 // Geheimer Modus
 document.addEventListener("keydown", function(event) {
-    if (event.key.length !== 1) return;
+            if (event.key.length !== 1) return;
 
-    eingabe += event.key.toLowerCase();
-    eingabe = eingabe.slice(-geheimCode.length);
+            eingabe += event.key.toLowerCase();
+            eingabe = eingabe.slice(-geheimCode.length);
 
-    if (eingabe === geheimCode) {
-        document.body.classList.toggle("geheim");
-        eingabe = "";
+            if (eingabe === geheimCode) {
+                document.body.classList.toggle("geheim");
+                eingabe = "";
 
-        if (document.body.classList.contains("geheim")) {
-            secretFunction();
-        }
-    }
+                if (document.body.classList.contains("geheim")) {
+                    secretFunction();
+                }
+            }
 });
 
 function secretFunction() {
-    alert("Geheimer Modus aktiviert!");
+            alert("Geheimer Modus aktiviert!");
 
-    nachricht.innerHTML = `
-        <button id="geheimerButton" class="geheimer-button" onclick="addCount()">Geheimer Button</button>
-    `;
+            nachricht.innerHTML = `
+                <button id="geheimerButton" class="geheimer-button" onclick="addCount()">Geheimer Button</button>
+            `;
 }
 
-function cheat(){
-    count += 100;
-    countLabel.textContent = count;
-    if (count >= 100 && !isGeheimerModus) {
-    document.getElementById("links").innerHTML +=
-        `<li><a href="Secret_Page.html">Geheime Seite</a></li>`;
-        isGeheimerModus = true;
-}
+function cheat() {
+            count += 100;
+            countLabel.textContent = count;
+
+            if (count >= 100 && count < 200 && !isGeheimerModus) {
+                document.getElementById("links").innerHTML +=
+                    '<li><a href="Secret_Page.html">Geheime Seite</a></li>';
+                isGeheimerModus = true;
+            }
+
+            if (count >= 200 && !isSuperGeheimerModus) {
+                document.getElementById("links").innerHTML +=
+                    '<li><a href="Super_Secret_Page.html">Super Geheime Seite</a></li>';
+                isSuperGeheimerModus = true;
+            }
 }
 
 function addCount() {
-    count++;
-    countLabel.textContent = count;
+            count++;
+            countLabel.textContent = count;
 
-    if (count >= 100 && !isGeheimerModus) {
-        document.getElementById("links").innerHTML +=
-            `<li><a href="Secret_Page.html">Geheime Seite</a></li>`;
-            isGeheimerModus = true;
-    }
+            if (count >= 100 && !isGeheimerModus) {
+                document.getElementById("links").innerHTML +=
+                    '<li><a href="Secret_Page.html">Geheime Seite</a></li>';
+                isGeheimerModus = true;
+            }
+
+            if (count >= 200 && !isSuperGeheimerModus) {
+                document.getElementById("links").innerHTML +=
+                    '<li><a href="Super_Secret_Page.html">Super Geheime Seite</a></li>';
+                isSuperGeheimerModus = true;
+            }
 }
-
-
 
     </script>
 </body>
