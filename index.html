@@ -233,6 +233,7 @@
 let eingabe = "";
 const geheimCode = "123";
 const nachricht = document.getElementById("nachricht");
+let isGeheimerModus = false;
 
 let count = 0;
 
@@ -279,13 +280,24 @@ function secretFunction() {
     `;
 }
 
+function cheat(){
+    count += 100;
+    countLabel.textContent = count;
+    if (count >= 100 && !isGeheimerModus) {
+    document.getElementById("links").innerHTML +=
+        `<li><a href="Secret_Page.html">Geheime Seite</a></li>`;
+        isGeheimerModus = true;
+}
+}
+
 function addCount() {
     count++;
     countLabel.textContent = count;
 
-    if (count >= 100) {
+    if (count >= 100 && !isGeheimerModus) {
         document.getElementById("links").innerHTML +=
             `<li><a href="Secret_Page.html">Geheime Seite</a></li>`;
+            isGeheimerModus = true;
     }
 }
 
