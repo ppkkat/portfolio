@@ -129,12 +129,54 @@
                 font-size: 1.15rem;
             }
         }
+        body.geheim {
+            background: #050505;
+            color: #00ff66;
+            font-family: monospace;
+        }
+
+        #nachricht {
+      display: none;
+      font-size: 25px;
+      margin-top: 30px;
+    }
+
+    body.geheim #nachricht {
+      display: block;
+    }
+
+        .geheimer-button {
+            background: #050505;
+            color: #00ff66;
+            border: 2px solid #00ff66;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-family: monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00ff66;
+            transition: all 0.3s ease;
+        }
+
+            .geheimer-button:hover {
+                background: #00ff66;
+                color: #050505;
+                box-shadow: 0 0 25px #00ff66;
+                transform: scale(1.08);
+            }
+
+            .geheimer-button:active {
+                transform: scale(0.95);
+            }
 
     </style>
 </head>
 <body>
     <div class="menu">
-        <ul>
+        <ul id="links">
             <li>
                 <a href="Passwortgenerator.html">Passwort Genarator</a>
             </li>
@@ -180,27 +222,74 @@
         <button id="increaseBtn" onclick="increaseCount()" class="buttons">increase</button>
     </div>
 
-    <script>
-        //Counter
-        const decreaseBtn = document.getElementById("decreaseBtn");
-        const resetBtn = document.getElementById("resetBtn");
-        const increaseBtn = document.getElementById("increaseBtn");
-        const countLabel = document.getElementById("countlabel");
-        let count = 0;
+    <div id="nachricht">
+        GEHEIMER MODUS AKTIVIERT!<br><br>
+        Willkommen, Hacker
+    </div>
 
-        function increaseCount() {
-            count++;
-            countLabel.textContent = count;
+    <script>
+
+            
+let eingabe = "";
+const geheimCode = "123";
+const nachricht = document.getElementById("nachricht");
+
+let count = 0;
+
+// Counter
+const countLabel = document.getElementById("countlabel");
+
+function increaseCount() {
+    count++;
+    countLabel.textContent = count;
+}
+
+function decreaseCount() {
+    count--;
+    countLabel.textContent = count;
+}
+
+function resetCount() {
+    count = 0;
+    countLabel.textContent = count;
+}
+
+// Geheimer Modus
+document.addEventListener("keydown", function(event) {
+    if (event.key.length !== 1) return;
+
+    eingabe += event.key.toLowerCase();
+    eingabe = eingabe.slice(-geheimCode.length);
+
+    if (eingabe === geheimCode) {
+        document.body.classList.toggle("geheim");
+        eingabe = "";
+
+        if (document.body.classList.contains("geheim")) {
+            secretFunction();
         }
-        function decreaseCount() {
-            count--;
-            countLabel.textContent = count;
-        }
-        function resetCount() {
-            count = 0;
-            countLabel.textContent = 0;
-        }
-        
+    }
+});
+
+function secretFunction() {
+    alert("Geheimer Modus aktiviert!");
+
+    nachricht.innerHTML = `
+        <button id="geheimerButton" class="geheimer-button" onclick="addCount()">Geheimer Button</button>
+    `;
+}
+
+function addCount() {
+    count++;
+    countLabel.textContent = count;
+
+    if (count >= 100) {
+        document.getElementById("links").innerHTML +=
+            `<li><a href="SecretPage.html">Geheime Seite</a></li>`;
+    }
+}
+
+
 
     </script>
 </body>
