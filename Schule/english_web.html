@@ -1,0 +1,500 @@
+﻿```html
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Irregular Verbs Finder</title>
+
+    <style>
+        body {
+            font-family: 'Comic Sans MS', Arial, sans-serif;
+            background: linear-gradient(135deg, #8ec5fc, #e0c3fc);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .box {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            max-width: 650px;
+            margin: auto;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a2c8c;
+            text-shadow: 2px 2px white;
+        }
+
+        .description {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #b38bff;
+            border-radius: 10px;
+            font-size: 18px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+            input:focus {
+                border-color: #7a4cff;
+                box-shadow: 0 0 10px #c7a3ff;
+            }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 12px;
+            background: #7a4cff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background: #5b2fd6;
+            }
+
+        #result {
+            margin-top: 25px;
+        }
+
+        .verb-card {
+            background: #f3e8ff;
+            border: 2px solid #d3b3ff;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+            .verb-card h2 {
+                color: #4a2c8c;
+                margin-top: 0;
+            }
+
+        .forms {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .form {
+            background: white;
+            padding: 15px 5px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .form-title {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 8px;
+        }
+
+        .form-word {
+            font-size: 20px;
+            font-weight: bold;
+            color: #4a2c8c;
+        }
+
+        .meaning {
+            margin-top: 15px;
+            font-size: 17px;
+        }
+
+        .error {
+            background: #ffe5e5;
+            border: 2px solid #ffaaaa;
+            color: #a00000;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .examples {
+            margin-top: 25px;
+            background: #f8f8f8;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+            .examples code {
+                background: white;
+                padding: 3px 6px;
+                border-radius: 5px;
+            }
+
+        @media (max-width: 500px) {
+            .forms {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="box">
+
+        <h1>📚 Irregular Verbs</h1>
+
+        <p class="description">
+            Gib ein englisches Verb ein und finde seine 3 Formen.
+        </p>
+
+        <input type="text"
+               id="verbInput"
+               placeholder="z.B. teach"
+               autocomplete="off">
+
+        <button onclick="findVerb()">
+            🔍 Verb suchen
+        </button>
+
+        <button onclick="resetSearch()">
+            🔄 Reset
+        </button>
+
+        <div id="result"></div>
+
+        <div class="examples">
+            <b>Beispiele:</b><br><br>
+
+            <code>hit</code> → hit – hit – hit<br><br>
+            <code>teach</code> → teach – taught – taught<br><br>
+            <code>go</code> → go – went – gone<br><br>
+            <code>write</code> → write – wrote – written
+        </div>
+
+    </div>
+
+
+    <script>
+
+/*
+==================================================
+IRREGULAR VERBS
+Form:
+infinitive: [past simple, past participle, German meaning]
+==================================================
+*/
+
+const verbs = {
+
+            be: ["was/were", "been", "sein"],
+            become: ["became", "become", "werden"],
+            begin: ["began", "begun", "beginnen"],
+            bite: ["bit", "bitten", "beißen"],
+            blow: ["blew", "blown", "blasen"],
+            break: ["broke", "broken", "brechen"],
+            bring: ["brought", "brought", "bringen"],
+            build: ["built", "built", "bauen"],
+            buy: ["bought", "bought", "kaufen"],
+            catch: ["caught", "caught", "fangen"],
+            choose: ["chose", "chosen", "wählen"],
+            come: ["came", "come", "kommen"],
+            cost: ["cost", "cost", "kosten"],
+            cut: ["cut", "cut", "schneiden"],
+            deal: ["dealt", "dealt", "handeln"],
+            dig: ["dug", "dug", "graben"],
+            do: ["did", "done", "machen"],
+            draw: ["drew", "drawn", "zeichnen"],
+            dream: ["dreamed/dreamt", "dreamed/dreamt", "träumen"],
+            drink: ["drank", "drunk", "trinken"],
+            drive: ["drove", "driven", "fahren"],
+            eat: ["ate", "eaten", "essen"],
+            fall: ["fell", "fallen", "fallen"],
+            feed: ["fed", "fed", "füttern"],
+            feel: ["felt", "felt", "fühlen"],
+            fight: ["fought", "fought", "kämpfen"],
+            find: ["found", "found", "finden"],
+            fly: ["flew", "flown", "fliegen"],
+            forget: ["forgot", "forgotten", "vergessen"],
+            forgive: ["forgave", "forgiven", "vergeben"],
+            freeze: ["froze", "frozen", "frieren"],
+            get: ["got", "got/gotten", "bekommen"],
+            give: ["gave", "given", "geben"],
+            go: ["went", "gone", "gehen"],
+            grow: ["grew", "grown", "wachsen"],
+            hang: ["hung", "hung", "hängen"],
+            have: ["had", "had", "haben"],
+            hear: ["heard", "heard", "hören"],
+            hide: ["hid", "hidden", "verstecken"],
+            hit: ["hit", "hit", "schlagen"],
+            hold: ["held", "held", "halten"],
+            hurt: ["hurt", "hurt", "verletzen"],
+            keep: ["kept", "kept", "behalten"],
+            know: ["knew", "known", "wissen"],
+            lay: ["laid", "laid", "legen"],
+            lead: ["led", "led", "führen"],
+            learn: ["learned/learnt", "learned/learnt", "lernen"],
+            leave: ["left", "left", "verlassen"],
+            lend: ["lent", "lent", "leihen"],
+            let: ["let", "let", "lassen"],
+            lie: ["lay", "lain", "liegen"],
+            lose: ["lost", "lost", "verlieren"],
+            make: ["made", "made", "machen"],
+            mean: ["meant", "meant", "bedeuten"],
+            meet: ["met", "met", "treffen"],
+            pay: ["paid", "paid", "bezahlen"],
+            put: ["put", "put", "legen"],
+            read: ["read", "read", "lesen"],
+            ride: ["rode", "ridden", "reiten/fahren"],
+            ring: ["rang", "rung", "klingeln"],
+            rise: ["rose", "risen", "steigen"],
+            run: ["ran", "run", "rennen"],
+            say: ["said", "said", "sagen"],
+            see: ["saw", "seen", "sehen"],
+            sell: ["sold", "sold", "verkaufen"],
+            send: ["sent", "sent", "schicken"],
+            set: ["set", "set", "setzen"],
+            shake: ["shook", "shaken", "schütteln"],
+            shine: ["shone", "shone", "scheinen"],
+            shoot: ["shot", "shot", "schießen"],
+            show: ["showed", "shown", "zeigen"],
+            shut: ["shut", "shut", "schließen"],
+            sing: ["sang", "sung", "singen"],
+            sink: ["sank", "sunk", "sinken"],
+            sit: ["sat", "sat", "sitzen"],
+            sleep: ["slept", "slept", "schlafen"],
+            speak: ["spoke", "spoken", "sprechen"],
+            spend: ["spent", "spent", "ausgeben"],
+            stand: ["stood", "stood", "stehen"],
+            steal: ["stole", "stolen", "stehlen"],
+            swim: ["swam", "swum", "schwimmen"],
+            take: ["took", "taken", "nehmen"],
+            teach: ["taught", "taught", "lehren"],
+            tear: ["tore", "torn", "zerreißen"],
+            tell: ["told", "told", "erzählen"],
+            think: ["thought", "thought", "denken"],
+            throw: ["threw", "thrown", "werfen"],
+            understand: ["understood", "understood", "verstehen"],
+            wake: ["woke", "woken", "aufwachen"],
+            wear: ["wore", "worn", "tragen"],
+            win: ["won", "won", "gewinnen"],
+            write: ["wrote", "written", "schreiben"],
+
+            // Weitere wichtige Verben
+
+            arise: ["arose", "arisen", "entstehen"],
+            awake: ["awoke", "awoken", "aufwachen"],
+            bear: ["bore", "borne", "tragen"],
+            beat: ["beat", "beaten", "schlagen"],
+            bend: ["bent", "bent", "biegen"],
+            bet: ["bet", "bet", "wetten"],
+            bind: ["bound", "bound", "binden"],
+            bleed: ["bled", "bled", "bluten"],
+            breed: ["bred", "bred", "züchten"],
+            burn: ["burnt/burned", "burnt/burned", "brennen"],
+            burst: ["burst", "burst", "platzen"],
+            cast: ["cast", "cast", "werfen"],
+            cling: ["clung", "clung", "sich festhalten"],
+            creep: ["crept", "crept", "kriechen"],
+            feed: ["fed", "fed", "füttern"],
+            flee: ["fled", "fled", "fliehen"],
+            forbid: ["forbade", "forbidden", "verbieten"],
+            forecast: ["forecast", "forecast", "vorhersagen"],
+            grind: ["ground", "ground", "mahlen"],
+            kneel: ["knelt/kneeled", "knelt/kneeled", "knien"],
+            knit: ["knit/knitted", "knit/knitted", "stricken"],
+            leap: ["leapt/leaped", "leapt/leaped", "springen"],
+            light: ["lit/lighted", "lit/lighted", "anzünden"],
+            prove: ["proved", "proven/proved", "beweisen"],
+            quit: ["quit", "quit", "aufhören"],
+            seek: ["sought", "sought", "suchen"],
+            sew: ["sewed", "sewn/sewed", "nähen"],
+            slide: ["slid", "slid", "rutschen"],
+            smell: ["smelt/smelled", "smelt/smelled", "riechen"],
+            spell: ["spelt/spelled", "spelt/spelled", "buchstabieren"],
+            spill: ["spilt/spilled", "spilt/spilled", "verschütten"],
+            spoil: ["spoilt/spoiled", "spoilt/spoiled", "verderben"],
+            spread: ["spread", "spread", "verbreiten"],
+            spring: ["sprang", "sprung", "springen"],
+            stick: ["stuck", "stuck", "kleben"],
+            sting: ["stung", "stung", "stechen"],
+            stink: ["stank", "stunk", "stinken"],
+            strike: ["struck", "struck", "schlagen"],
+            swear: ["swore", "sworn", "schwören"],
+            sweep: ["swept", "swept", "fegen"],
+            swing: ["swung", "swung", "schwingen"],
+            tread: ["trod", "trodden", "treten"],
+            weep: ["wept", "wept", "weinen"],
+            withdraw: ["withdrew", "withdrawn", "zurückziehen"],
+            withstand: ["withstood", "withstood", "widerstehen"]
+};
+
+
+/*
+==================================================
+VERB SUCHEN
+==================================================
+*/
+
+function findVerb() {
+
+            const input =
+                document
+                    .getElementById("verbInput")
+                    .value
+                    .trim()
+                    .toLowerCase();
+
+            const result =
+                document.getElementById("result");
+
+
+            if (input === "") {
+
+                result.innerHTML = `
+                    <div class="error">
+                        Bitte gib ein Verb ein.
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            /*
+            Suche nach dem Verb
+            */
+
+            if (verbs[input]) {
+
+                const data = verbs[input];
+
+                const past = data[0];
+                const participle = data[1];
+                const meaning = data[2];
+
+
+                result.innerHTML = `
+
+                    <div class="verb-card">
+
+                        <h2>✅ ${input}</h2>
+
+                        <div class="forms">
+
+                            <div class="form">
+                                <div class="form-title">
+                                    Infinitive
+                                </div>
+
+                                <div class="form-word">
+                                    ${input}
+                                </div>
+                            </div>
+
+
+                            <div class="form">
+                                <div class="form-title">
+                                    Simple Past
+                                </div>
+
+                                <div class="form-word">
+                                    ${past}
+                                </div>
+                            </div>
+
+
+                            <div class="form">
+                                <div class="form-title">
+                                    Past Participle
+                                </div>
+
+                                <div class="form-word">
+                                    ${participle}
+                                </div>
+                            </div>
+
+                        </div>
+
+
+                        <div class="meaning">
+                            🇩🇪 Bedeutung:
+                            <b>${meaning}</b>
+                        </div>
+
+                    </div>
+                `;
+
+            }
+
+            else {
+
+                result.innerHTML = `
+
+                    <div class="error">
+
+                        ❌ Verb nicht gefunden.
+
+                        <br><br>
+
+                        Dieses Verb ist momentan
+                        nicht in der Liste.
+
+                    </div>
+
+                `;
+            }
+}
+
+
+/*
+==================================================
+ENTER-TASTE
+==================================================
+*/
+
+document
+            .getElementById("verbInput")
+            .addEventListener("keydown", function(event) {
+
+                if (event.key === "Enter") {
+
+                    findVerb();
+                }
+            });
+
+
+/*
+==================================================
+RESET
+==================================================
+*/
+
+function resetSearch() {
+
+            document
+                .getElementById("verbInput")
+                .value = "";
+
+            document
+                .getElementById("result")
+                .innerHTML = "";
+
+            document
+                .getElementById("verbInput")
+                .focus();
+}
+
+    </script>
+
+</body>
+</html>
+```

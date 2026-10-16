@@ -1,0 +1,1726 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Fächer Quiz</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            max-width: 850px;
+            margin: auto;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        h2, h3 {
+            color: #222;
+        }
+
+        select,
+        input[type="text"],
+        input[type="number"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        select {
+            width: 100%;
+            max-width: 350px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+        }
+
+        input[type="number"] {
+            width: 100px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+            button:hover {
+                background: #0056b3;
+            }
+
+        .greenButton {
+            background: #28a745;
+        }
+
+            .greenButton:hover {
+                background: #1e7e34;
+            }
+
+        .redButton {
+            background: #dc3545;
+        }
+
+            .redButton:hover {
+                background: #a71d2a;
+            }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #ddd;
+            margin: 30px 0;
+        }
+
+        .question {
+            background: #eef;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .result {
+            margin-top: 10px;
+            font-weight: bold;
+            min-height: 20px;
+        }
+
+        .answersBox {
+            background: #fff7d1;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .custom-question {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+            .custom-question input {
+                margin: 0;
+            }
+
+        .score {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+            .score h3 {
+                margin-top: 0;
+            }
+
+        .importBox {
+            background: #f0f7ff;
+            border: 2px solid #b8d9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .info {
+            background: #f8f8f8;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+
+            .custom-question {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+
+<body>
+
+
+    <div class="box">
+
+        <h2>📚 Fächer Quiz</h2>
+
+
+        <!-- =========================================
+             FACH AUSWÄHLEN
+        ========================================== -->
+
+        <label>
+            <b>Fach auswählen:</b>
+        </label>
+
+        <br>
+
+        <select id="subject"></select>
+
+
+        <br><br>
+
+
+        <!-- =========================================
+             MODUS
+        ========================================== -->
+
+        <label>
+            <b>Modus:</b>
+        </label>
+
+        <br>
+
+        <label>
+            <input type="radio"
+                   name="mode"
+                   value="learn"
+                   checked>
+            Antworten lernen
+        </label>
+
+        <br>
+
+        <label>
+            <input type="radio"
+                   name="mode"
+                   value="all">
+            Alle Fragen
+        </label>
+
+        <br>
+
+        <label>
+            <input type="radio"
+                   name="mode"
+                   value="random">
+            Quiz (zufällige Anzahl)
+        </label>
+
+
+        <div id="randomBox"
+             style="display:none; margin-top:10px;">
+
+            <label>
+                Anzahl Fragen:
+            </label>
+
+            <br>
+
+            <input type="number"
+                   id="count"
+                   min="1"
+                   max="20"
+                   value="5">
+
+        </div>
+
+
+        <br>
+
+        <button onclick="startQuiz()">
+            ▶ Starten
+        </button>
+
+
+        <div id="quiz"></div>
+
+
+        <hr>
+
+
+        <!-- =========================================
+             EIGENES FACH ERSTELLEN
+        ========================================== -->
+
+        <h3>➕ Eigenes Fach erstellen</h3>
+
+
+        <label>
+            Fachname:
+        </label>
+
+        <br>
+
+        <input type="text"
+               id="newSubjectName"
+               placeholder="z.B. Geschichte">
+
+
+        <br><br>
+
+
+        <div id="customQuestions"></div>
+
+
+        <button onclick="addQuestion()">
+            + Frage hinzufügen
+        </button>
+
+        <button class="greenButton"
+                onclick="saveSubject()">
+            💾 Fach speichern
+        </button>
+
+
+        <hr>
+
+
+        <!-- =========================================
+             JSON EXPORT
+        ========================================== -->
+
+        <h3>📤 Fach exportieren</h3>
+
+        <p>
+            Du kannst dein ausgewähltes Fach als JSON-Datei
+            speichern und an einen Freund schicken.
+        </p>
+
+        <button class="greenButton"
+                onclick="exportSubject()">
+            📥 Ausgewähltes Fach als JSON speichern
+        </button>
+
+
+        <hr>
+
+
+        <!-- =========================================
+             JSON IMPORT
+        ========================================== -->
+
+        <h3>📥 Fach importieren</h3>
+
+
+        <div class="importBox">
+
+            <p>
+                Wähle eine JSON-Datei aus, die dir jemand
+                geschickt hat.
+            </p>
+
+
+            <input type="file"
+                   id="jsonFile"
+                   accept=".json,application/json">
+
+
+            <br>
+
+
+            <button onclick="importSubject()">
+                📂 JSON-Fach importieren
+            </button>
+
+        </div>
+
+
+        <div class="info">
+
+            💡 <b>So funktioniert es:</b><br><br>
+
+            1. Du erstellst ein eigenes Fach.<br>
+            2. Du speicherst es.<br>
+            3. Du klickst auf „Als JSON speichern“.<br>
+            4. Die JSON-Datei schickst du deinem Freund.<br>
+            5. Dein Freund öffnet seine Webseite.<br>
+            6. Er wählt die JSON-Datei aus.<br>
+            7. Er klickt auf „JSON-Fach importieren“.<br>
+            8. Das Fach erscheint in seiner Fächerliste. 🎉
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+
+/* =====================================================
+           STANDARD-FÄCHER
+===================================================== */
+
+const defaultQuestions = {
+
+            geo: [
+
+                {
+                    q: "Wofür benötigen wir Energie?",
+                    a: "Wir benötigen Energie, um Arbeit zu leisten und Wärme zu erzeugen."
+                },
+
+                {
+                    q: "Welche 2 Formen der Energie unterscheiden wir?",
+                    a: "kinetische und potentielle"
+                },
+
+                {
+                    q: "Nenne 4 Beispiele für erneuerbare Energie und die Vorteile/Nachteile dazu?",
+                    a: "Sonnenenergie (Vorteil: unerschöpflich, Nachteil: hohe Anschaffungskosten), Windenergie (Vorteil: umweltfreundlich, Nachteil: unregelmäßig), Wasserkraft (Vorteil: zuverlässig, Nachteil: Umweltbelastung), Geothermie (Vorteil: kontinuierlich, Nachteil: begrenzte Verfügbarkeit)"
+                },
+
+                {
+                    q: "Wie entsteht Kohlenstoffdioxid?",
+                    a: "Durch Verbrennung von fossilen Brennstoffen"
+                },
+
+                {
+                    q: "Wie lauten die Abkürzung von Kohlenstoffdioxid?",
+                    a: "CO2"
+                },
+
+                {
+                    q: "Erkläre den Unterschied zwischen erneuerbaren und nicht erneuerbaren Energieträgern?",
+                    a: "Der Unterschied liegt darin, dass erneuerbare Energieträger sich erneuern können, während nicht erneuerbare Energieträger endlich sind."
+                },
+
+                {
+                    q: "Nenne 4 Beispiele für Nicht erneuerbare Energien?",
+                    a: "Kohle, Erdöl, Erdgas, Uran"
+                },
+
+                {
+                    q: "Beschreibe die Entstehung von Erdöl und Erdgas?",
+                    a: "Erdöl und Erdgas entstehen durch die Umwandlung von organischem Material unter hohen Temperaturen und Drücken über Millionen von Jahren."
+                },
+
+                {
+                    q: "Beschreibe die Entstehung von Kohle?",
+                    a: "Kohle entsteht durch die Umwandlung von organischem Material unter hohen Temperaturen und Drücken über Millionen von Jahren."
+                },
+
+                {
+                    q: "Nenne 3 fossile Rohstoffe?",
+                    a: "Kohle, Erdöl, Erdgas"
+                },
+
+                {
+                    q: "Was geschiet in einer Raffinerie?",
+                    a: "Erdöl wird in verschiedene Produkte umgewandelt."
+                },
+
+                {
+                    q: "Wo gibt es in Österreich eine Raffinerie?",
+                    a: "In Schwechat"
+                },
+
+                {
+                    q: "Welche Alltagsprodukte wurden aus Erdöl hergestellt?",
+                    a: "Kunststoffe, Treibstoffe, Schmierstoffe, Kleidung"
+                },
+
+                {
+                    q: "Was bedeutet SMOG?",
+                    a: "SMOG bedeutet Luftverschmutzung durch Autoemissionen"
+                },
+
+                  {
+                    q: "Liste negative Folgen auf, die mit der Verbrennung von fossilen Energieträgern verbunden sind!",
+                    a: "schädlicher CO2-Ausstoß, Luftverschmutzung, saurer Regen und Klimawandel"
+                },
+
+                {
+                    q: "Was ist eine Pipeline?",
+                    a: "Eine Pipeline ist ein Rohrleitungssystem, das zur Transport von Flüssigkeiten oder Gasen über große Entfernungen verwendet wird."
+                },
+
+                {
+                    q: "Was kann darin transportiert werden?",
+                    a: "Es können Flüssigkeiten oder Gase transportiert werden."
+                },
+
+                {
+                    q: "Was bedeutet Recycling?",
+                    a: "Recycling ist der Prozess, durch den Abfallstoffe in neue Produkte umgewandelt werden."
+                },
+
+                {
+                    q: "Beschreibe den Kreislauf des Wassers.",
+                    a: "Der Wasserkreislauf beschreibt den kontinuierlichen Kreislauf von Wasser in der Natur, einschließlich Verdunstung, Kondensation, Niederschlag und Abfluss."
+                },
+
+                {
+                    q: "Wie groß ist der Anteil der Wasser- und der Landfächen auf der Erde?",
+                    a: "2/3 ist Wasser und 1/3 ist Land."
+                },
+
+                {
+                     q: "Welche Arten von Wasser gibt es?",
+                     a: "Salzwasser, Süßwasser, Grundwasser und Eis"
+                },
+                
+                {
+                    q: "Was passiert mit dem schmutzigen Wasser?",
+                    a: "Das schmutzige Wasser wird in Kläranlagen aufbereitet, bevor es in die Umwelt entlassen wird."
+                },
+
+                {
+                    q: "Was ist ein Berufsfeld?",
+                    a: "Ein Berufsfeld ist eine Tätigkeit oder ein Bereich, in dem jemand seine berufliche Laufbahn verfolgen kann."
+                },
+
+                {
+                    q: "Nenne einige Berufsfelder!",
+                    a: "Medizin, Lehrer, Anwalt, Arzt, Architekt, Informatiker und Holzfäller"
+                },
+
+                {
+                    q: "Was versteht man unter Arbeitsmarkt?",
+                    a: "Der Arbeitsmarkt ist der Markt für Arbeitskräfte, auf dem Arbeitgeber und Arbeitnehmer aufeinander treffen."
+                },
+
+                {
+                    q: "Wie heißen die 3 Sektoren der Wirtschaft?",
+                    a: "Die 3 Sektoren der Wirtschaft sind der Primärsektor, der Sekundärsektor und der Tertiärsektor."
+                },
+
+                {
+                    q: "Beschreibe die 3 Sektoren der Wirtschaft näher!",
+                    a: "Der Primärsektor umfasst die Gewinnung von Rohstoffen und landwirtschaftlichen Produkten. Der Sekundärsektor umfasst die Verarbeitung von Rohstoffen und die Herstellung von Gütern. Der Tertiärsektor umfasst Dienstleistungen wie Handel, Transport, Bildung und Gesundheitswesen."
+                },
+
+                {
+                    q: "Ordne verschiedene Berufe den einzelnen Wirtschaftssektoren zu!",
+                    a: "Der Primärsektor umfasst Berufe wie Landwirte und Bergleute. Der Sekundärsektor umfasst Berufe wie Fabrikarbeiter und Ingenieure. Der Tertiärsektor umfasst Berufe wie Lehrer, Ärzte und Anwälte."
+                },
+
+                {
+                    q: "Was bedeutet exportieren/importieren?",
+                    a: "Exportieren bedeutet Waren in ein anderes Land zu schicken. Importieren bedeutet Waren aus einem anderen Land zu bekommen."
+                },
+
+
+
+
+
+            ],
+
+
+            de: [
+
+                {
+                    q: "Wortart von 'laufen'?",
+                    a: "Verb"
+                },
+
+                {
+                    q: "Wie viele Fälle gibt es?",
+                    a: "4"
+                },
+
+                {
+                    q: "Plural von 'Haus'?",
+                    a: "Häuser"
+                },
+
+                {
+                    q: "Was ist ein Nomen?",
+                    a: "Namenwort"
+                }
+
+            ],
+
+
+            eng: [
+
+                {
+                    q: "Übersetze 'dog'.",
+                    a: "Hund"
+                },
+
+                {
+                    q: "Simple Past von 'go'?",
+                    a: "went"
+                },
+
+                {
+                    q: "Übersetze 'blue'.",
+                    a: "blau"
+                }
+
+            ],
+
+
+            math: [
+
+                {
+                    q: "5 + 7?",
+                    a: "12"
+                },
+
+                {
+                    q: "10 × 3?",
+                    a: "30"
+                },
+
+                {
+                    q: "Wurzel aus 16?",
+                    a: "4"
+                }
+
+            ]
+
+};
+
+
+
+/* =====================================================
+           FACHNAMEN
+===================================================== */
+
+const subjectNames = {
+
+            geo: "Geografie",
+            de: "Deutsch",
+            eng: "Englisch",
+            math: "Mathematik"
+
+};
+
+
+
+/* =====================================================
+           FRAGEN LADEN
+===================================================== */
+
+let questions = loadQuestions();
+
+
+function loadQuestions() {
+
+            const saved =
+                localStorage.getItem("faecherQuiz");
+
+
+            if (saved) {
+
+                try {
+
+                    return JSON.parse(saved);
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Gespeicherte Daten sind beschädigt."
+                    );
+
+                }
+
+            }
+
+
+            return JSON.parse(
+                JSON.stringify(defaultQuestions)
+            );
+}
+
+
+
+/* =====================================================
+           FRAGEN SPEICHERN
+===================================================== */
+
+function saveQuestions() {
+
+            localStorage.setItem(
+                "faecherQuiz",
+                JSON.stringify(questions)
+            );
+
+}
+
+
+
+/* =====================================================
+           FACHNAME ANZEIGEN
+===================================================== */
+
+function getSubjectName(key) {
+
+            return subjectNames[key] ||
+                key
+                    .replace(/_/g, " ")
+                    .replace(/\b\w/g, letter =>
+                        letter.toUpperCase()
+                    );
+
+}
+
+
+
+/* =====================================================
+           FÄCHERLISTE AKTUALISIEREN
+===================================================== */
+
+function updateSubjectList() {
+
+            const select =
+                document.getElementById("subject");
+
+
+            const oldValue =
+                select.value;
+
+
+            select.innerHTML = "";
+
+
+            for (const key in questions) {
+
+                const option =
+                    document.createElement("option");
+
+
+                option.value = key;
+
+                option.textContent =
+                    getSubjectName(key);
+
+
+                select.appendChild(option);
+
+            }
+
+
+            if (questions[oldValue]) {
+
+                select.value = oldValue;
+
+            }
+
+}
+
+
+
+/* =====================================================
+           START
+===================================================== */
+
+updateSubjectList();
+
+
+
+/* =====================================================
+           MODUS
+===================================================== */
+
+document
+            .querySelectorAll("input[name='mode']")
+            .forEach(radio => {
+
+                radio.addEventListener(
+                    "change",
+                    function() {
+
+                        document
+                            .getElementById("randomBox")
+                            .style.display =
+                            this.value === "random"
+                                ? "block"
+                                : "none";
+
+                    }
+                );
+
+            });
+
+
+
+/* =====================================================
+           QUIZ VARIABLEN
+===================================================== */
+
+let current = [];
+
+let index = 0;
+
+let correct = 0;
+
+let answered = false;
+
+
+
+/* =====================================================
+           QUIZ STARTEN
+===================================================== */
+
+function startQuiz() {
+
+            const subject =
+                document.getElementById("subject").value;
+
+
+            const mode =
+                document.querySelector(
+                    "input[name='mode']:checked"
+                ).value;
+
+
+            const all =
+                questions[subject];
+
+
+            const quizDiv =
+                document.getElementById("quiz");
+
+
+            quizDiv.innerHTML = "";
+
+
+            if (!all || all.length === 0) {
+
+                quizDiv.innerHTML =
+                    "<p>Dieses Fach enthält keine Fragen.</p>";
+
+                return;
+
+            }
+
+
+
+            /* Antworten lernen */
+
+            if (mode === "learn") {
+
+                quizDiv.innerHTML =
+                    "<h3>📖 Alle Antworten:</h3>";
+
+
+                all.forEach((q, i) => {
+
+                    const div =
+                        document.createElement("div");
+
+
+                    div.className =
+                        "answersBox";
+
+
+                    div.innerHTML = `
+
+                        <b>
+                            ${i + 1}.
+                            ${escapeHTML(q.q)}
+                        </b>
+
+                        <br>
+
+                        ✅ ${escapeHTML(q.a)}
+
+                    `;
+
+
+                    quizDiv.appendChild(div);
+
+                });
+
+
+                return;
+
+            }
+
+
+
+            /* Alle Fragen */
+
+            if (mode === "all") {
+
+                current = [...all];
+
+            }
+
+
+
+            /* Zufällige Fragen */
+
+            else {
+
+                let n =
+                    parseInt(
+                        document.getElementById("count").value
+                    );
+
+
+                if (isNaN(n) || n < 1) {
+
+                    n = 1;
+
+                }
+
+
+                if (n > all.length) {
+
+                    n = all.length;
+
+                }
+
+
+                current =
+                    shuffle([...all])
+                        .slice(0, n);
+
+            }
+
+
+            index = 0;
+
+            correct = 0;
+
+            answered = false;
+
+
+            showQuestion();
+
+}
+
+
+
+/* =====================================================
+           FRAGE ANZEIGEN
+===================================================== */
+
+function showQuestion() {
+
+            const quizDiv =
+                document.getElementById("quiz");
+
+
+            quizDiv.innerHTML = "";
+
+
+            answered = false;
+
+
+
+            if (index >= current.length) {
+
+                quizDiv.innerHTML = `
+
+                    <div class="score">
+
+                        <h3>🎉 Fertig!</h3>
+
+                        <p>
+
+                            Richtig:
+                            <b>${correct}</b>
+
+                            von
+
+                            <b>${current.length}</b>
+
+                        </p>
+
+
+                        <button onclick="startQuiz()">
+                            🔄 Nochmal spielen
+                        </button>
+
+                    </div>
+
+                `;
+
+
+                return;
+
+            }
+
+
+
+            const q =
+                current[index];
+
+
+            quizDiv.innerHTML = `
+
+                <div class="question">
+
+                    <p>
+
+                        <b>
+                            Frage
+                            ${index + 1}/${current.length}:
+                        </b>
+
+                    </p>
+
+
+                    <p>
+                        ${escapeHTML(q.q)}
+                    </p>
+
+
+                    <input
+                        id="answer"
+                        type="text"
+                        placeholder="Antwort eingeben"
+                        autocomplete="off"
+                    >
+
+
+                    <button onclick="checkAnswer()">
+                        ✓ Prüfen
+                    </button>
+
+
+                    <div
+                        id="result"
+                        class="result"
+                    ></div>
+
+                </div>
+
+            `;
+
+
+            const input =
+                document.getElementById("answer");
+
+
+            input.addEventListener(
+                "keydown",
+                function(event) {
+
+                    if (event.key === "Enter") {
+
+                        checkAnswer();
+
+                    }
+
+                }
+            );
+
+
+            input.focus();
+
+}
+
+
+
+/* =====================================================
+           ANTWORT PRÜFEN
+===================================================== */
+
+function checkAnswer() {
+
+            if (answered) {
+
+                return;
+
+            }
+
+
+            answered = true;
+
+
+            const input =
+                document.getElementById("answer");
+
+
+            const result =
+                document.getElementById("result");
+
+
+            const user =
+                input.value.trim();
+
+
+            const correctAnswer =
+                current[index].a;
+
+
+            if (
+                normalize(user) ===
+                normalize(correctAnswer)
+            ) {
+
+                result.textContent =
+                    "✅ Richtig!";
+
+
+                result.style.color =
+                    "green";
+
+
+                correct++;
+
+            }
+
+            else {
+
+                result.textContent =
+                    "❌ Falsch! Richtige Antwort: " +
+                    correctAnswer;
+
+
+                result.style.color =
+                    "red";
+
+            }
+
+
+            input.disabled = true;
+
+
+            setTimeout(() => {
+
+                index++;
+
+                showQuestion();
+
+            }, 1200);
+
+}
+
+
+
+/* =====================================================
+           TEXT VERGLEICHEN
+===================================================== */
+
+function normalize(text) {
+
+            return text
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, " ");
+
+}
+
+
+
+/* =====================================================
+           ZUFALL
+===================================================== */
+
+function shuffle(array) {
+
+            for (
+                let i = array.length - 1;
+                i > 0;
+                i--
+            ) {
+
+                const j =
+                    Math.floor(
+                        Math.random() * (i + 1)
+                    );
+
+
+                [
+                    array[i],
+                    array[j]
+                ] =
+                [
+                    array[j],
+                    array[i]
+                ];
+
+            }
+
+
+            return array;
+
+}
+
+
+
+/* =====================================================
+           FRAGE HINZUFÜGEN
+===================================================== */
+
+function addQuestion() {
+
+            const box =
+                document.getElementById(
+                    "customQuestions"
+                );
+
+
+            const div =
+                document.createElement("div");
+
+
+            div.className =
+                "custom-question";
+
+
+            div.innerHTML = `
+
+                <input
+                    type="text"
+                    placeholder="Frage"
+                    class="qInput"
+                >
+
+
+                <input
+                    type="text"
+                    placeholder="Antwort"
+                    class="aInput"
+                >
+
+
+                <button
+                    class="redButton"
+                    onclick="this.parentElement.remove()"
+                >
+                    🗑️
+                </button>
+
+            `;
+
+
+            box.appendChild(div);
+
+}
+
+
+
+/* =====================================================
+           NEUES FACH SPEICHERN
+===================================================== */
+
+function saveSubject() {
+
+            const nameInput =
+                document.getElementById(
+                    "newSubjectName"
+                );
+
+
+            const name =
+                nameInput.value.trim();
+
+
+            if (name === "") {
+
+                alert(
+                    "Bitte einen Fachnamen eingeben."
+                );
+
+                return;
+
+            }
+
+
+            const key =
+                name
+                    .toLowerCase()
+                    .replace(/\s+/g, "_");
+
+
+            if (questions[key]) {
+
+                alert(
+                    "Dieses Fach existiert bereits!"
+                );
+
+                return;
+
+            }
+
+
+            const qInputs =
+                document.querySelectorAll(".qInput");
+
+
+            const aInputs =
+                document.querySelectorAll(".aInput");
+
+
+            const arr = [];
+
+
+            for (
+                let i = 0;
+                i < qInputs.length;
+                i++
+            ) {
+
+                const q =
+                    qInputs[i].value.trim();
+
+
+                const a =
+                    aInputs[i].value.trim();
+
+
+                if (q !== "" && a !== "") {
+
+                    arr.push({
+                        q: q,
+                        a: a
+                    });
+
+                }
+
+            }
+
+
+            if (arr.length === 0) {
+
+                alert(
+                    "Bitte mindestens eine Frage + Antwort eingeben."
+                );
+
+                return;
+
+            }
+
+
+            questions[key] = arr;
+
+
+            saveQuestions();
+
+
+            updateSubjectList();
+
+
+            document.getElementById(
+                "subject"
+            ).value = key;
+
+
+            document.getElementById(
+                "customQuestions"
+            ).innerHTML = "";
+
+
+            nameInput.value = "";
+
+
+            alert(
+                `Fach "${name}" wurde gespeichert!`
+            );
+
+}
+
+
+
+/* =====================================================
+           JSON EXPORT
+===================================================== */
+
+function exportSubject() {
+
+            const select =
+                document.getElementById("subject");
+
+
+            const subjectKey =
+                select.value;
+
+
+            if (!subjectKey) {
+
+                alert(
+                    "Bitte zuerst ein Fach auswählen."
+                );
+
+                return;
+
+            }
+
+
+            const subjectQuestions =
+                questions[subjectKey];
+
+
+            if (
+                !subjectQuestions ||
+                subjectQuestions.length === 0
+            ) {
+
+                alert(
+                    "Dieses Fach enthält keine Fragen."
+                );
+
+                return;
+
+            }
+
+
+            /*
+            JSON-Datei aufbauen
+            */
+
+            const exportData = {
+
+                type: "faecher-quiz",
+
+                version: 1,
+
+                subject: getSubjectName(subjectKey),
+
+                questions: subjectQuestions
+
+            };
+
+
+            const json =
+                JSON.stringify(
+                    exportData,
+                    null,
+                    4
+                );
+
+
+            /*
+            Datei erstellen
+            */
+
+            const blob =
+                new Blob(
+                    [json],
+                    {
+                        type: "application/json"
+                    }
+                );
+
+
+            const url =
+                URL.createObjectURL(blob);
+
+
+            const link =
+                document.createElement("a");
+
+
+            link.href = url;
+
+
+            /*
+            Dateiname
+            */
+
+            link.download =
+                getSubjectName(subjectKey)
+                    .replace(/[^a-zA-Z0-9äöüÄÖÜß ]/g, "")
+                    .replace(/\s+/g, "_")
+                + ".json";
+
+
+            document.body.appendChild(link);
+
+
+            link.click();
+
+
+            document.body.removeChild(link);
+
+
+            URL.revokeObjectURL(url);
+
+}
+
+
+
+/* =====================================================
+           JSON IMPORT
+===================================================== */
+
+function importSubject() {
+
+            const fileInput =
+                document.getElementById("jsonFile");
+
+
+            const file =
+                fileInput.files[0];
+
+
+            if (!file) {
+
+                alert(
+                    "Bitte zuerst eine JSON-Datei auswählen."
+                );
+
+                return;
+
+            }
+
+
+            /*
+            Nur JSON erlauben
+            */
+
+            if (
+                !file.name
+                    .toLowerCase()
+                    .endsWith(".json")
+            ) {
+
+                alert(
+                    "Bitte eine .json Datei auswählen."
+                );
+
+                return;
+
+            }
+
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                function(event) {
+
+                    try {
+
+                        const data =
+                            JSON.parse(
+                                event.target.result
+                            );
+
+
+                        /*
+                        JSON überprüfen
+                        */
+
+                        if (
+                            !data ||
+                            typeof data !== "object"
+                        ) {
+
+                            throw new Error(
+                                "Ungültige JSON-Datei."
+                            );
+
+                        }
+
+
+                        if (
+                            data.type !== "faecher-quiz"
+                        ) {
+
+                            throw new Error(
+                                "Das ist keine Fächer-Quiz-Datei."
+                            );
+
+                        }
+
+
+                        if (
+                            !data.subject ||
+                            typeof data.subject !== "string"
+                        ) {
+
+                            throw new Error(
+                                "Der Fachname fehlt."
+                            );
+
+                        }
+
+
+                        if (
+                            !Array.isArray(data.questions)
+                        ) {
+
+                            throw new Error(
+                                "Die Fragen fehlen."
+                            );
+
+                        }
+
+
+                        if (
+                            data.questions.length === 0
+                        ) {
+
+                            throw new Error(
+                                "Das Fach enthält keine Fragen."
+                            );
+
+                        }
+
+
+                        /*
+                        Jede Frage überprüfen
+                        */
+
+                        for (
+                            const question
+                            of data.questions
+                        ) {
+
+                            if (
+                                !question ||
+                                typeof question.q !== "string" ||
+                                typeof question.a !== "string" ||
+                                question.q.trim() === "" ||
+                                question.a.trim() === ""
+                            ) {
+
+                                throw new Error(
+                                    "Eine Frage ist ungültig."
+                                );
+
+                            }
+
+                        }
+
+
+                        /*
+                        Fachnamen als Key
+                        */
+
+                        let key =
+                            data.subject
+                                .trim()
+                                .toLowerCase()
+                                .replace(/\s+/g, "_");
+
+
+                        /*
+                        Wenn das Fach bereits existiert,
+                        neue Nummer anhängen.
+                        */
+
+                        let originalKey =
+                            key;
+
+                        let number = 2;
+
+
+                        while (questions[key]) {
+
+                            key =
+                                originalKey +
+                                "_" +
+                                number;
+
+                            number++;
+
+                        }
+
+
+                        /*
+                        Fach hinzufügen
+                        */
+
+                        questions[key] =
+                            data.questions.map(
+                                q => ({
+                                    q: q.q.trim(),
+                                    a: q.a.trim()
+                                })
+                            );
+
+
+                        /*
+                        Speichern
+                        */
+
+                        saveQuestions();
+
+
+                        /*
+                        Liste aktualisieren
+                        */
+
+                        updateSubjectList();
+
+
+                        /*
+                        Importiertes Fach auswählen
+                        */
+
+                        document.getElementById(
+                            "subject"
+                        ).value = key;
+
+
+                        /*
+                        Datei-Eingabe leeren
+                        */
+
+                        fileInput.value = "";
+
+
+                        alert(
+                            `Fach "${data.subject}" erfolgreich importiert!`
+                        );
+
+                    }
+
+                    catch (error) {
+
+                        alert(
+                            "❌ Import fehlgeschlagen:\n\n" +
+                            error.message
+                        );
+
+                    }
+
+                };
+
+
+            reader.onerror =
+                function() {
+
+                    alert(
+                        "Die Datei konnte nicht gelesen werden."
+                    );
+
+                };
+
+
+            reader.readAsText(file);
+
+}
+
+
+
+/* =====================================================
+           HTML SICHER AUSGEBEN
+===================================================== */
+
+function escapeHTML(text) {
+
+            const div =
+                document.createElement("div");
+
+
+            div.textContent =
+                text;
+
+
+            return div.innerHTML;
+
+}
+
+    </script>
+
+</body>
+</html>
+
