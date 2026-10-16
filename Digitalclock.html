@@ -9,6 +9,19 @@
             margin: 0;
             background-color: orange;
         }
+        #homeBnt {
+            padding: 10px 20px;
+            font-size: 1.5em;
+            color: white;
+            background-color: hsl(214 100% 74%);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.25s;
+        }
+
+            #homeBnt:hover {
+                background-color: hsl(214 100% 56%);
+            }
         #clock-container {
             display: flex;
             justify-content: center;
@@ -28,25 +41,28 @@
     <div id="clock-container">
         <div id="clock">00:00:00</div>
     </div>
+
+    <button id="homeBnt" onclick="window.location.href='index.html'">Home</button>
+
     <script>
 
-        function updateClock() {
-            const now = new Date();
-            let hours = now.getHours();
-            const meridiem = hours >= 12 ? `PM` : `AM`;
-            hours = hours % 12 || 12; // Convert to 12-hour format
-            hours = hours.toString().padStart(2, 0);
-            const minutes = String(now.getMinutes()).toString().padStart(2, 0);
-            const seconds = String(now.getSeconds()).toString().padStart(2, 0);
-            const timestring = `${hours}:${minutes}:${seconds} ${meridiem}`;
-            document.getElementById('clock').textContent = timestring;
-        }
+                function updateClock() {
+                    const now = new Date();
+                    let hours = now.getHours();
+                    const meridiem = hours >= 12 ? `PM` : `AM`;
+                    hours = hours % 12 || 12; // Convert to 12-hour format
+                    hours = hours.toString().padStart(2, 0);
+                    const minutes = String(now.getMinutes()).toString().padStart(2, 0);
+                    const seconds = String(now.getSeconds()).toString().padStart(2, 0);
+                    const timestring = `${hours}:${minutes}:${seconds} ${meridiem}`;
+                    document.getElementById('clock').textContent = timestring;
+                }
 
-        // Update the clock immediately
-        updateClock();
+                // Update the clock immediately
+                updateClock();
 
-        // Update the clock every second
-        setInterval(updateClock, 1000);
+                // Update the clock every second
+                setInterval(updateClock, 1000);
 
     </script>
 </body>

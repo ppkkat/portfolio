@@ -5,6 +5,19 @@
     <meta charset="utf-8" />
     <title>Passwort Genarator</title>
     <style>
+        #homeBnt {
+            padding: 10px 20px;
+            font-size: 1.5em;
+            color: white;
+            background-color: hsl(214 100% 74%);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.25s;
+        }
+
+            #homeBnt:hover {
+                background-color: hsl(214 100% 56%);
+            }
         form {
             width: 300px;
             margin: 40px auto;
@@ -97,72 +110,75 @@
         <p id="result"></p>
 
     </form>
+
+    <button id="homeBnt" onclick="window.location.href='index.html'">Home</button>
+
     <script>
-        // Passwort Generator
+                // Passwort Generator
 
-        function getPasswordInformation() {
-            const lengthInput = document.getElementById("pwlength");
-            const length = Number(lengthInput.value);
-            const maxLength = Number(lengthInput.max);
+                function getPasswordInformation() {
+                    const lengthInput = document.getElementById("pwlength");
+                    const length = Number(lengthInput.value);
+                    const maxLength = Number(lengthInput.max);
 
-            const includeLowercase = document.getElementById("lccheckbox").checked;
-            const includeUppercase = document.getElementById("upcheckbox").checked;
-            const includeNumbers = document.getElementById("nbcheckbox").checked;
-            const includeSymbols = document.getElementById("sbcheckbox").checked;
+                    const includeLowercase = document.getElementById("lccheckbox").checked;
+                    const includeUppercase = document.getElementById("upcheckbox").checked;
+                    const includeNumbers = document.getElementById("nbcheckbox").checked;
+                    const includeSymbols = document.getElementById("sbcheckbox").checked;
 
-            /*if (length > maxLength) {
-                window.alert("You can't go higher than " + maxLength);
-                length = "";
-                return { length: maxLength, includeLowercase, includeUppercase, includeNumbers, includeSymbols };
-            }
-            */
+                    /*if (length > maxLength) {
+                        window.alert("You can't go higher than " + maxLength);
+                        length = "";
+                        return { length: maxLength, includeLowercase, includeUppercase, includeNumbers, includeSymbols };
+                    }
+                    */
 
-            return { length, includeLowercase, includeUppercase, includeNumbers, includeSymbols };
-        }
+                    return { length, includeLowercase, includeUppercase, includeNumbers, includeSymbols };
+                }
 
 
-        function generatePassword(length, includeLowercase, includeUppercase, includeNumbers, includeSymbols) {
+                function generatePassword(length, includeLowercase, includeUppercase, includeNumbers, includeSymbols) {
 
-            const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
-            const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            const numbersChars = "0123456789";
-            const symbolsChars = "!@#$%^&*()_+-=";
+                    const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
+                    const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                    const numbersChars = "0123456789";
+                    const symbolsChars = "!@#$%^&*()_+-=";
 
-            let allowedChars = "";
-            let password = "";
+                    let allowedChars = "";
+                    let password = "";
 
-            if (includeLowercase) allowedChars += lowercaseChars;
-            if (includeUppercase) allowedChars += uppercaseChars;
-            if (includeNumbers) allowedChars += numbersChars;
-            if (includeSymbols) allowedChars += symbolsChars;
+                    if (includeLowercase) allowedChars += lowercaseChars;
+                    if (includeUppercase) allowedChars += uppercaseChars;
+                    if (includeNumbers) allowedChars += numbersChars;
+                    if (includeSymbols) allowedChars += symbolsChars;
 
-            /*if (length <= 0) {
-                return "Password length must be at least 1.";
-            }
-            if (allowedChars.length === 0) {
-                return "At least one character type must be selected.";
-            }*/
+                    /*if (length <= 0) {
+                        return "Password length must be at least 1.";
+                    }
+                    if (allowedChars.length === 0) {
+                        return "At least one character type must be selected.";
+                    }*/
 
-            for (let i = 0; i < length; i++) {
-                const randomIndex = Math.floor(Math.random() * allowedChars.length);
-                password += allowedChars[randomIndex];
-            }
+                    for (let i = 0; i < length; i++) {
+                        const randomIndex = Math.floor(Math.random() * allowedChars.length);
+                        password += allowedChars[randomIndex];
+                    }
 
-            return password;
-        }
+                    return password;
+                }
 
-        function createPassword() {
-            const info = getPasswordInformation();
-            const password = generatePassword(
-                info.length,
-                info.includeLowercase,
-                info.includeUppercase,
-                info.includeNumbers,
-                info.includeSymbols
-            );
+                function createPassword() {
+                    const info = getPasswordInformation();
+                    const password = generatePassword(
+                        info.length,
+                        info.includeLowercase,
+                        info.includeUppercase,
+                        info.includeNumbers,
+                        info.includeSymbols
+                    );
 
-            document.getElementById("result").textContent = password;
-        }
+                    document.getElementById("result").textContent = password;
+                }
     </script>
 </body>
 

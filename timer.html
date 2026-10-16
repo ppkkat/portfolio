@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            font-family: 'Segoe UI', sans-serif;
+            color: #fff;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.07);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 24px;
+            padding: 48px 56px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 32px;
+            opacity: 0.7;
+        }
+        #homeBnt {
+            padding: 10px 20px;
+            font-size: 1.5em;
+            color: white;
+            background-color: hsl(214 100% 74%);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.25s;
+        }
+
+            #homeBnt:hover {
+                background-color: hsl(214 100% 56%);
+            }
+        .input-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+
+        input[type="number"] {
+            width: 70px;
+            padding: 10px;
+            font-size: 1.4rem;
+            text-align: center;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            color: #fff;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+            input[type="number"]:focus {
+                border-color: #6c63ff;
+            }
+
+        input::-webkit-inner-spin-button {
+            display: none;
+        }
+
+        .colon {
+            font-size: 2rem;
+            opacity: 0.4;
+        }
+
+        #display {
+            font-size: 5rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            margin: 24px 0 32px;
+            background: linear-gradient(180deg, #fff, #a8a3ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: opacity 0.3s;
+        }
+
+            #display.done {
+                background: linear-gradient(180deg, #6fff8b, #34d399);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                animation: pulse 0.6s ease infinite alternate;
+            }
+
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+            }
+
+            to {
+                transform: scale(1.04);
+            }
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+            button:active {
+                transform: scale(0.96);
+            }
+
+        .btn-start {
+            background: linear-gradient(135deg, #6c63ff, #4834d4);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(108,99,255,0.4);
+        }
+
+            .btn-start:hover {
+                box-shadow: 0 6px 28px rgba(108,99,255,0.6);
+            }
+
+        .btn-stop {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+            .btn-stop:hover {
+                background: rgba(255,255,255,0.18);
+            }
+
+        .btn-reset {
+            background: rgba(255,100,100,0.15);
+            color: #ff8a8a;
+            border: 1px solid rgba(255,100,100,0.25);
+        }
+
+            .btn-reset:hover {
+                background: rgba(255,100,100,0.25);
+            }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Timer</h1>
+
+        <div class="input-row">
+            <input type="number" id="mins" min="0" max="99" placeholder="0">
+            <span class="colon">:</span>
+            <input type="number" id="secs" min="0" max="59" placeholder="00">
+        </div>
+
+        <div id="display">--:--</div>
+
+        <div class="buttons">
+            <button class="btn-start" onclick="startTimer()">Start</button>
+            <button class="btn-stop" onclick="stopTimer()">Pause</button>
+            <button class="btn-reset" onclick="resetTimer()">Reset</button>
+        </div>
+    </div>
+
+    <button id="homeBnt" onclick="window.location.href='index.html'">Home</button>
+
+    <script>
+                let interval = null;
+                let remaining = 0;
+                let audioCtx = null;
+
+                function startTimer() {
+                    const m = parseInt(document.getElementById("mins").value) || 0;
+                    const s = parseInt(document.getElementById("secs").value) || 0;
+                    const total = m * 60 + s;
+
+                    if (total <= 0 && !remaining) {
+                        document.getElementById("display").textContent = "⚠️";
+                        return;
+                    }
+
+                    if (remaining <= 0) remaining = total;
+
+                    stopTimer();
+                    document.getElementById("display").classList.remove("done");
+
+                    interval = setInterval(() => {
+                        remaining--;
+                        render();
+                        if (remaining <= 0) {
+                            stopTimer();
+                            document.getElementById("display").textContent = "FERTIG!";
+                            document.getElementById("display").classList.add("done");
+                            playBeep(5);
+                        }
+                    }, 1000);
+                }
+
+                function stopTimer() {
+                    if (interval) { clearInterval(interval); interval = null; }
+                }
+
+                function resetTimer() {
+                    stopTimer();
+                    remaining = 0;
+                    document.getElementById("display").textContent = "--:--";
+                    document.getElementById("display").classList.remove("done");
+                    document.getElementById("mins").value = "";
+                    document.getElementById("secs").value = "";
+                }
+
+                function render() {
+                    const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
+                    const ss = String(remaining % 60).padStart(2, "0");
+                    document.getElementById("display").textContent = mm + ":" + ss;
+                }
+
+                function playBeep(durationSec) {
+                    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+                    const duration = durationSec;
+                    const now = audioCtx.currentTime;
+
+                    const oscillator = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+
+                    oscillator.type = "sine";
+                    oscillator.frequency.setValueAtTime(880, now);
+
+                    gainNode.gain.setValueAtTime(0.5, now);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + duration);
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+
+                    oscillator.start(now);
+                    oscillator.stop(now + duration);
+                }
+    </script>
+
+</body>
+</html>   

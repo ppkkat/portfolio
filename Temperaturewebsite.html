@@ -12,7 +12,19 @@
         h1{
             color: hsl(223, 100%, 64%);
         }
+        #homeBnt {
+            padding: 10px 20px;
+            font-size: 1.5em;
+            color: white;
+            background-color: hsl(214 100% 74%);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.25s;
+        }
 
+            #homeBnt:hover {
+                background-color: hsl(214 100% 56%);
+            }
         form{
             background-color: hsl(0,0,100);
             text-align: center;
@@ -56,40 +68,43 @@
 <body>
     <form>
         <h1>Temperature conversion</h1>
-        <input type="number" id="textbox" value="0"/><br />
+        <input type="number" id="textbox" value="0" /><br />
 
-        <input type="radio" id="toFahrenheit" name="unit"/>
-        <label for="toFahrenheit">Celsius --> Fahrenheit</label><br/>
+        <input type="radio" id="toFahrenheit" name="unit" />
+        <label for="toFahrenheit">Celsius --> Fahrenheit</label><br />
 
-        <input type="radio" id="toCelsius" name="unit"/>
-        <label for="toCelsius">Fahrenheit --> Celsius</label><br/>
+        <input type="radio" id="toCelsius" name="unit" />
+        <label for="toCelsius">Fahrenheit --> Celsius</label><br />
 
         <button type="button" onclick="convert()">submit</button>
         <p id="result"></p>
     </form>
+
+    <button id="homeBnt" onclick="window.location.href='index.html'">Home</button>
+
     <script>
 
-        const textbox = document.getElementById("textbox");
-        const toFahrenheit = document.getElementById("toFahrenheit");
-        const toCelsius = document.getElementById("toCelsius");
-        const result = document.getElementById("result");
-        let temp;
+                const textbox = document.getElementById("textbox");
+                const toFahrenheit = document.getElementById("toFahrenheit");
+                const toCelsius = document.getElementById("toCelsius");
+                const result = document.getElementById("result");
+                let temp;
 
-        function convert() {
-            if (toFahrenheit.checked) {
-                temp = Number(textbox.value);
-                temp = temp * 9 / 5 + 32;
-                result.textContent = temp.toFixed(1) + "°F";
-            }
-            else if (toCelsius.checked) {
-                temp = Number(textbox.value);
-                temp = (temp - 32) * (5/9);
-                result.textContent = temp.toFixed(1) + "°C";
-            }
-            else {
-                result.textContent = "Select a unit";
-            }
-        }
+                function convert() {
+                    if (toFahrenheit.checked) {
+                        temp = Number(textbox.value);
+                        temp = temp * 9 / 5 + 32;
+                        result.textContent = temp.toFixed(1) + "°F";
+                    }
+                    else if (toCelsius.checked) {
+                        temp = Number(textbox.value);
+                        temp = (temp - 32) * (5/9);
+                        result.textContent = temp.toFixed(1) + "°C";
+                    }
+                    else {
+                        result.textContent = "Select a unit";
+                    }
+                }
     </script>
 </body>
 </html>

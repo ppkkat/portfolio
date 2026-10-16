@@ -13,6 +13,19 @@
         h1 {
             color: #333;
         }
+        #homeBnt {
+            padding: 10px 20px;
+            font-size: 1.5em;
+            color: white;
+            background-color: hsl(214 100% 74%);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.25s;
+        }
+
+            #homeBnt:hover {
+                background-color: hsl(214 100% 56%);
+            }
         button {
             padding: 10px 20px;
             font-size: 16px;
@@ -27,60 +40,63 @@
 <body>
     <h1>Number Game</h1>
     <button onclick="location.reload()">Restart</button>
+
+    <button id="homeBnt" onclick="window.location.href='index.html'">Home</button>
+
     <script>
-        //Number Game
-        let max;
-        let min = 0;
-        let anser;
+                //Number Game
+                let max;
+                let min = 0;
+                let anser;
 
-        let attempts = 0;
-        let guess;
-        let guessmax;
-        let running = false;
-
-
-        if (!running) {
-            guessmax = window.prompt(`Please enter the max.`);
-            guessmax = Number(guessmax);
-            max = Number(max);
-            if (isNaN(guessmax)) {
-                window.alert("Please enter a valid number")
-            }
-            else {
-                max = guessmax;
-                anser = Math.floor(Math.random() * max) + min;
-                running = true;
-            }
-
-        }
-
-        while (running) {
-
-            guess = window.prompt(`Guss a number between ${min} - ${max}`)
-            guess = Number(guess);
-            console.log(`The anser is ${anser}`);
+                let attempts = 0;
+                let guess;
+                let guessmax;
+                let running = false;
 
 
-            if (isNaN(guess)) {
-                window.alert("Please enter a valid number")
-            }
-            else if (guess < min || guess > max) {
-                window.alert("Please enter a valid number")
-            }
-            else {
-                attempts++;
-                if (guess < anser) {
-                    window.alert("TOO LOW! TRY AGAIN!");
+                if (!running) {
+                    guessmax = window.prompt(`Please enter the max.`);
+                    guessmax = Number(guessmax);
+                    max = Number(max);
+                    if (isNaN(guessmax)) {
+                        window.alert("Please enter a valid number")
+                    }
+                    else {
+                        max = guessmax;
+                        anser = Math.floor(Math.random() * max) + min;
+                        running = true;
+                    }
+
                 }
-                else if (guess > anser) {
-                    window.alert("TOO HIGH! TRY AGAIN!");
+
+                while (running) {
+
+                    guess = window.prompt(`Guss a number between ${min} - ${max}`)
+                    guess = Number(guess);
+                    console.log(`The anser is ${anser}`);
+
+
+                    if (isNaN(guess)) {
+                        window.alert("Please enter a valid number")
+                    }
+                    else if (guess < min || guess > max) {
+                        window.alert("Please enter a valid number")
+                    }
+                    else {
+                        attempts++;
+                        if (guess < anser) {
+                            window.alert("TOO LOW! TRY AGAIN!");
+                        }
+                        else if (guess > anser) {
+                            window.alert("TOO HIGH! TRY AGAIN!");
+                        }
+                        else {
+                            window.alert(`CORRECT! The answer was ${anser}. It took you ${attempts} attemps.`);
+                            running = false;
+                        }
+                    }
                 }
-                else {
-                    window.alert(`CORRECT! The answer was ${anser}. It took you ${attempts} attemps.`);
-                    running = false;
-                }
-            }
-        }
     </script>
 </body>
 </html>

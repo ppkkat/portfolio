@@ -5,81 +5,156 @@
     <title>Vielfacher Generator</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #6fb1fc, #4364f7, #3b3b98);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
         }
 
+        .container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 350px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #3b3b98;
+        }
+        #homeBnt {
+            padding: 10px 20px;
+            font-size: 1.5em;
+            color: white;
+            background-color: hsl(214 100% 74%);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.25s;
+        }
+
+            #homeBnt:hover {
+                background-color: hsl(214 100% 56%);
+            }
         label {
             display: block;
-            margin-top: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: left;
         }
 
         input {
+            width: 100%;
+            padding: 10px;
             margin-top: 5px;
-            padding: 5px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
         }
 
-        button {
-            margin-top: 15px;
-            padding: 8px 12px;
-            cursor: pointer;
-        }
-
-        #result {
+        #calBtn {
+            width: 100%;
+            padding: 12px;
             margin-top: 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #3b3b98;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #calBtn:hover {
+            background-color: #2d2d72;
+        }
+
+        #rsBnt {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: #808080;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #rsBnt:hover {
+            background-color: #666666;
+        }
+
+
+        #result {   
+            margin-top: 25px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-left: 5px solid #3b3b98;
+            border-radius: 8px;
             font-weight: bold;
+            min-height: 40px;
         }
     </style>
 </head>
 <body>
-    <h1>Vielfacher Generator</h1>
 
-    <label for="num">Num:</label>
-    <input type="number" id="num" placeholder="z.B. 2" min="0">
+    <div class="container">
+        <h1>Vielfacher Generator</h1>
 
-    <label for="min">Min:</label>
-    <input type="number" id="min" placeholder="z.B. 4" min="0">
+        <label for="num">Num:</label>
+        <input type="number" id="num" placeholder="z.B. 2" min="0">
 
-    <label for="max">Max:</label>
-    <input type="number" id="max" placeholder="z.B. 8" min="0"><br />
+        <label for="min">Min:</label>
+        <input type="number" id="min" placeholder="z.B. 4" min="0">
 
+        <label for="max">Max:</label>
+        <input type="number" id="max" placeholder="z.B. 8" min="0">
 
+        <button id="calBtn" onclick="generate()">Berechnen</button>
+        <button id="rsBnt" onclick="Reset()">Reset</button>
 
-    <button onclick="generate()">Berechnen</button><br />
-    <button onclick="Reset()">Reset</button>
+        <div id="result"></div>
+    </div>
 
-    <div id="result"></div>
+    <button id="homeBnt" onclick="window.location.href='index.html'">Home</button>
 
     <script>
-        function generate() {
-            const num = parseInt(document.getElementById('num').value, 10);
-            const max = parseInt(document.getElementById('max').value, 10);
-            const min = parseInt(document.getElementById('min').value, 10);
-            const resultDiv = document.getElementById('result');
+                function generate() {
+                    const num = parseInt(document.getElementById('num').value, 10);
+                    const max = parseInt(document.getElementById('max').value, 10);
+                    const min = parseInt(document.getElementById('min').value, 10);
+                    const resultDiv = document.getElementById('result');
 
-            if (isNaN(num) || isNaN(max) || isNaN(min) || num <= 0 || max <= 0 || min <= 0) {
-                resultDiv.textContent = 'Bitte gib gültige positive Zahlen ein.';
-                return;
-            }
+                    if (isNaN(num) || isNaN(max) || isNaN(min) || num <= 0 || max <= 0 || min <= 0) {
+                        resultDiv.textContent = 'Bitte gib gültige positive Zahlen ein.';
+                        return;
+                    }
 
-            const arr = [];
+                    const arr = [];
+                    let start = Math.ceil(min / num) * num;
 
+                    for (let i = start; i <= max; i += num) {
+                        arr.push(i);
+                    }
 
-            let start = Math.ceil(min / num) * num;
+                    const count = arr.length;
 
-            for (let i = start; i <= max; i += num) {
-                arr.push(i);
-            }
+                    resultDiv.textContent = `V(${num}) = { ${arr.join(', ')} } (Anzahl: ${count})`;
+                }
 
-            resultDiv.textContent = `V(${num}) = { ${arr.join(', ')} }`;
-        }
-
-        function Reset() {
-            document.getElementById('num').value = "";
-            document.getElementById('max').value = "";
-            document.getElementById('min').value = "";
-            document.getElementById('result').textContent = "";
-        }
+                function Reset() {
+                    document.getElementById('num').value = "";
+                    document.getElementById('max').value = "";
+                    document.getElementById('min').value = "";
+                    document.getElementById('result').textContent = "";
+                }
     </script>
 
 </body>

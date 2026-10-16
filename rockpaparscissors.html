@@ -17,6 +17,18 @@
             font-size: 3.5rem;
             color: black;
         }
+        #homeBnt {
+            padding: 10px 20px;
+            font-size: 1.5em;
+            color: white;
+            background-color: hsl(214 100% 74%);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.25s;
+        }
+        #homeBnt:hover {
+            background-color: hsl(214 100% 56%);
+        }
         .choices {
             margin-bottom: 30px;
         }
@@ -60,9 +72,9 @@
     <h1>Rock - Paper - Scissors</h1>
 
     <div class="choices">
-        <button onclick="playGame('fire')" id="fire">Fire</button>
-        <button onclick="playGame('cardboard')" id="cardboard">Cardboard</button>
-        <button onclick="playGame('water')" id="water">Water</button>
+        <button onclick="playGame('rock')" id="fire">Rock</button>
+        <button onclick="playGame('paper')" id="cardboard">Paper</button>
+        <button onclick="playGame('scissors')" id="water">Scissors</button>
     </div>
 
     <div id="playerDisplay">Player: </div>
@@ -74,9 +86,11 @@
         <p>Computer Score: <span id="computerScore">0</span></p>
     </div>
 
+    <button id="homeBnt" onclick="window.location.href='index.html'">Home</button>
+
     <script>
 
-        const choices = ['fire', 'cardboard', 'water'];
+        const choices = ['rock', 'paper', 'scissors'];
         const playerDisplay = document.getElementById('playerDisplay');
         const computerDisplay = document.getElementById('computerDisplay');
         const resultDisplay = document.getElementById('resultDisplay');
@@ -95,14 +109,14 @@
             }
             else {
                 switch (playerchoise) {
-                    case 'fire':
-                        result = computerChoise === 'cardboard' ? "YOU LOSE!" : "YOU WIN!";
+                    case 'rock':
+                        result = computerChoise === 'paper' ? "YOU LOSE!" : "YOU WIN!";
                         break;  
-                    case 'cardboard':
-                        result = computerChoise === 'water' ? "YOU LOSE!" : "YOU WIN!";
+                    case 'paper':
+                        result = computerChoise === 'scissors' ? "YOU LOSE!" : "YOU WIN!";
                         break;
-                    case 'water':
-                        result = computerChoise === 'fire' ? "YOU LOSE!" : "YOU WIN!";
+                    case 'scissors':
+                        result = computerChoise === 'rock' ? "YOU LOSE!" : "YOU WIN!";
                         break;
                 }
             }
