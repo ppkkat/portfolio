@@ -4,50 +4,35 @@
 <head>
     <meta charset="utf-8" />
     <title>My Website</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             text-align: center;
-            padding-top: 40px;
+            padding: 0;
             margin: 0;
         }
-        #countlabel {
-            display: block;
-            text-align: center;
-            font-size: 10em;
-            font-family: Helvetica;
 
-        }
-        #Btncontainer {
-            text-align: center;
-        }
-        .buttons {
-            padding: 10px 20px;
-            font-size: 1.5em;
-            color: white;
-            background-color: hsl(214 100% 74%);
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.25s;
-        }
-        .buttons:hover {
-            background-color: hsl(214 100% 56%);
-        }
+        /* Navigation */
         .menu {
             width: 100%;
             background: #ffffff;
-            padding: 10px 0;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        #productContainer{
-            text-align: center;
+            padding: 15px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         }
 
             .menu ul {
                 display: flex;
                 justify-content: center;
-                gap: 20px;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 15px 20px;
                 padding: 0;
                 margin: 0;
             }
@@ -57,20 +42,94 @@
                 }
 
                     .menu ul li a {
+                        display: block;
                         text-decoration: none;
                         color: #000;
                         font-weight: bold;
                         font-size: 16px;
-                        transition: 0.3s;
+                        padding: 8px;
+                        transition: color 0.3s;
                     }
 
                         .menu ul li a:hover {
                             color: #007bff;
                         }
 
-        
+        /* Counter */
+        #countlabel {
+            display: block;
+            text-align: center;
+            font-size: clamp(5rem, 20vw, 10rem);
+            font-family: Helvetica, Arial, sans-serif;
+            margin: 30px 0;
+            overflow-wrap: anywhere;
+        }
 
-        
+        /* Buttons */
+        #Btncontainer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 0 15px 30px;
+        }
+
+        .buttons {
+            padding: 12px 22px;
+            font-size: 1.2rem;
+            color: white;
+            background-color: hsl(214, 100%, 74%);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.25s;
+            min-height: 48px;
+        }
+
+            .buttons:hover {
+                background-color: hsl(214, 100%, 56%);
+            }
+
+        /* Anpassungen für Handys */
+        @media (max-width: 600px) {
+            .menu {
+                padding: 10px;
+            }
+
+                .menu ul {
+                    display: grid;
+                    grid-template-columns: repeat(2, minmax(0, 1fr));
+                    gap: 8px;
+                }
+
+                    .menu ul li a {
+                        background: #f4f4f4;
+                        border-radius: 6px;
+                        padding: 12px 5px;
+                        font-size: 14px;
+                        overflow-wrap: anywhere;
+                    }
+
+            #countlabel {
+                font-size: clamp(4rem, 25vw, 7rem);
+                margin: 45px 0;
+            }
+
+            #Btncontainer {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 0 25px 30px;
+                gap: 12px;
+            }
+
+            .buttons {
+                width: 100%;
+                min-height: 52px;
+                font-size: 1.15rem;
+            }
+        }
+
     </style>
 </head>
 <body>
