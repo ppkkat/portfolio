@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meine Einkaufsliste</title>
+<style>
+:root{--blue:#2457d6;--navy:#14213d;--pale:#f3f6ff;--green:#138a62;--border:#dfe5f0}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:linear-gradient(145deg,#eaf0ff,#f8fbff);color:var(--navy);padding:24px}
+main{max-width:850px;margin:0 auto}
+header{text-align:center;margin:12px 0 28px}
+header h1{margin:0;font-size:clamp(2rem,5vw,3rem)}
+header p{color:#61708a;margin:8px 0}
+.panel{background:white;border:1px solid var(--border);border-radius:20px;padding:22px;box-shadow:0 12px 36px #1d37650d;margin-bottom:20px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+label{display:block;font-weight:650;font-size:.92rem;margin-bottom:7px}
+input,select,button{font:inherit}
+input[type=date],input[type=text],select{width:100%;padding:12px 13px;border:1px solid #cfd8e8;border-radius:10px;background:white;color:var(--navy)}
+button{border:0;border-radius:10px;padding:12px 16px;background:var(--blue);color:white;font-weight:650;cursor:pointer}
+button:hover{filter:brightness(.95)}
+button.secondary{background:#eef2fa;color:#33415c}
+button.danger{background:#fff0f0;color:#a12222}
+.primary-action{width:100%;margin-top:16px}
+.list-header{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.list-header h2{margin:0}
+.muted{color:#697791}
+.hidden{display:none!important}
+.item-entry{display:flex;gap:8px;margin:18px 0}
+.item-entry input{flex:1;min-width:0}
+ul{list-style:none;padding:0;margin:0}
+li{display:flex;gap:12px;align-items:center;padding:13px 4px;border-bottom:1px solid #edf0f6}
+li:last-child{border-bottom:0}
+li input[type=checkbox]{width:19px;height:19px;accent-color:var(--green);flex-shrink:0}
+li .item-name{flex:1;overflow-wrap:anywhere}
+li.done .item-name{text-decoration:line-through;color:#8b96a8}
+li button{padding:7px 10px}
+.empty{text-align:center;padding:24px 0;color:#77839a}
+.badge{font-size:.82rem;background:#eef3ff;color:#2447a5;padding:5px 9px;border-radius:999px}
+.saved-list{border:1px solid var(--border);border-radius:12px;padding:15px;margin-top:12px}
+.saved-list h3{margin:0 0 6px}
+.saved-list button{margin-top:10px}
+@media(max-width:520px){body{padding:14px}.panel{padding:17px}.item-entry{flex-wrap:wrap}.item-entry input{flex-basis:100%}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>🛒 Meine Einkaufsliste</h1>
+  <p>Datum und Geschäft auswählen – und deine Einkaufsliste erstellen.</p>
+</header>
+
+<section class="panel">
+  <div class="fields">
+    <div>
+      <label for="shoppingDate">Einkaufsdatum</label>
+      <input type="date" id="shoppingDate">
+    </div>
+    <div>
+      <label for="store">Einkaufsladen</label>
+      <select id="store">
+        <option value="SPAR">SPAR</option>
+        <option value="BILLA">BILLA</option>
+        <option value="HOFER">HOFER</option>
+        <option value="Lidl">Lidl</option>
+        <option value="PENNY">PENNY</option>
+        <option value="dm">dm</option>
+        <option value="Müller">Müller</option>
+        <option value="Sonstiger Laden">Sonstiger Laden</option>
+      </select>
+    </div>
+    <div id="customStoreWrap" class="hidden">
+      <label for="customStore">Name des Ladens</label>
+      <input type="text" id="customStore" placeholder="Name eingeben">
+    </div>
+  </div>
+  <button class="primary-action" id="createList">Einkaufsliste erstellen</button>
+</section>
+
+<section class="panel hidden" id="activePanel">
+  <div class="list-header">
+    <div>
+      <h2 id="listTitle">Einkaufsliste</h2>
+      <p class="muted" id="listMeta"></p>
+    </div>
+    <span class="badge" id="progress">0 erledigt</span>
+  </div>
+  <form class="item-entry" id="itemForm">
+    <input type="text" id="itemInput" placeholder="z. B. Milch, Brot, Äpfel …" aria-label="Neuer Einkaufsartikel" required>
+    <input type="text" id="quantityInput" placeholder="Menge (z. B. 2 Stück)" aria-label="Menge">
+    <button type="submit">+ Hinzufügen</button>
+  </form>
+  <ul id="items"></ul>
+  <p class="empty" id="emptyMessage">Noch keine Produkte. Füge oben deinen ersten Artikel hinzu.</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+    <button class="secondary" id="saveList">Liste speichern</button>
+    <button class="secondary" id="newList">Andere Liste erstellen</button>
+    <button class="danger" id="clearItems">Artikel entfernen</button>
+  </div>
+</section>
+
+<section class="panel" id="savedPanel">
+  <div class="list-header"><h2>Gespeicherte Listen</h2><span class="muted" id="savedCount">0 Listen</span></div>
+  <div id="savedLists"><p class="empty">Noch keine gespeicherten Listen.</p></div>
+</section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const STORAGE_KEY = 'meine-einkaufslisten-v1';
+let activeList = null;
+let savedLists = [];
+try { savedLists = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { savedLists = []; }
+
+const today = new Date();
+$('shoppingDate').value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+$('store').addEventListener('change', () => {
+  $('customStoreWrap').classList.toggle('hidden', $('store').value !== 'Sonstiger Laden');
+});
+
+function storeName() {
+  return $('store').value === 'Sonstiger Laden' ? ($('customStore').value.trim() || 'Sonstiger Laden') : $('store').value;
+}
+function prettyDate(value) {
+  if (!value) return 'Kein Datum';
+  return new Date(value + 'T12:00:00').toLocaleDateString('de-AT', {day:'2-digit', month:'2-digit', year:'numeric'});
+}
+function createList() {
+  const date = $('shoppingDate').value;
+  if (!date) { alert('Bitte wähle ein Datum aus.'); return; }
+  if ($('store').value === 'Sonstiger Laden' && !$('customStore').value.trim()) {
+    alert('Bitte gib den Namen des Ladens ein.'); return;
+  }
+  activeList = { id: Date.now().toString(), date, store: storeName(), items: [] };
+  $('activePanel').classList.remove('hidden');
+  renderActiveList();
+  $('itemInput').focus();
+}
+$('createList').addEventListener('click', createList);
+$('newList').addEventListener('click', () => {
+  activeList = null;
+  $('activePanel').classList.add('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+$('itemForm').addEventListener('submit', e => {
+  e.preventDefault();
+  if (!activeList) return;
+  const name = $('itemInput').value.trim();
+  if (!name) return;
+  activeList.items.push({id: Date.now().toString()+Math.random().toString(16).slice(2), name, quantity: $('quantityInput').value.trim(), done:false});
+  $('itemInput').value = '';
+  $('quantityInput').value = '';
+  renderActiveList();
+  $('itemInput').focus();
+});
+$('saveList').addEventListener('click', () => {
+  if (!activeList) return;
+  const index = savedLists.findIndex(x => x.id === activeList.id);
+  if (index >= 0) savedLists[index] = JSON.parse(JSON.stringify(activeList));
+  else savedLists.unshift(JSON.parse(JSON.stringify(activeList)));
+  persist();
+  renderSavedLists();
+  alert('Einkaufsliste wurde gespeichert.');
+});
+$('clearItems').addEventListener('click', () => {
+  if (!activeList || !activeList.items.length) return;
+  if (confirm('Möchtest du alle Artikel aus dieser Liste entfernen?')) {
+    activeList.items = [];
+    renderActiveList();
+  }
+});
+function renderActiveList() {
+  if (!activeList) return;
+  $('listTitle').textContent = activeList.store;
+  $('listMeta').textContent = 'Einkauf am ' + prettyDate(activeList.date);
+  const ul = $('items');
+  ul.replaceChildren();
+  activeList.items.forEach(item => {
+    const li = document.createElement('li');
+    if (item.done) li.classList.add('done');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.checked = item.done;
+    cb.setAttribute('aria-label', item.name + ' erledigt');
+    cb.addEventListener('change', () => { item.done = cb.checked; renderActiveList(); });
+    const name = document.createElement('span');
+    name.className = 'item-name';
+    name.textContent = item.name + (item.quantity ? ' · ' + item.quantity : '');
+    const del = document.createElement('button');
+    del.className = 'danger'; del.textContent = 'Entfernen';
+    del.addEventListener('click', () => { activeList.items = activeList.items.filter(x => x.id !== item.id); renderActiveList(); });
+    li.append(cb, name, del); ul.append(li);
+  });
+  $('emptyMessage').classList.toggle('hidden', activeList.items.length > 0);
+  $('progress').textContent = `${activeList.items.filter(x=>x.done).length} von ${activeList.items.length} erledigt`;
+}
+function persist() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(savedLists)); }
+  catch { alert('Speichern ist in diesem Browser nicht möglich.'); }
+}
+function renderSavedLists() {
+  $('savedCount').textContent = `${savedLists.length} ${savedLists.length === 1 ? 'Liste' : 'Listen'}`;
+  const root = $('savedLists'); root.replaceChildren();
+  if (!savedLists.length) {
+    const p = document.createElement('p'); p.className='empty'; p.textContent='Noch keine gespeicherten Listen.'; root.append(p); return;
+  }
+  savedLists.forEach(list => {
+    const card = document.createElement('div'); card.className='saved-list';
+    const h = document.createElement('h3'); h.textContent=list.store;
+    const meta = document.createElement('p'); meta.className='muted'; meta.textContent=`${prettyDate(list.date)} · ${list.items.length} Artikel`;
+    const open = document.createElement('button'); open.textContent='Liste öffnen'; open.addEventListener('click',()=>{activeList=JSON.parse(JSON.stringify(list));$('activePanel').classList.remove('hidden');renderActiveList();$('activePanel').scrollIntoView({behavior:'smooth'});});
+    const del = document.createElement('button'); del.className='danger'; del.style.marginLeft='8px'; del.textContent='Löschen'; del.addEventListener('click',()=>{if(confirm('Gespeicherte Liste löschen?')){savedLists=savedLists.filter(x=>x.id!==list.id);persist();renderSavedLists();}});
+    card.append(h,meta,open,del); root.append(card);
+  });
+}
+renderSavedLists();
+</script>
+</body>
+</html>

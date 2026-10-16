@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rezept</title>
+
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #ffcf71, #ff9f1c);
+        margin: 0;
+        padding: 30px;
+        color: #333;
+    }
+
+    h1 {
+        text-align: center;
+        color: #222;
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-top: 15px;
+        font-size: 18px;
+    }
+
+    input, textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border-radius: 8px;
+        border: 2px solid #ffa600;
+        font-size: 16px;
+        outline: none;
+        transition: 0.2s;
+    }
+
+    input:focus, textarea:focus {
+        border-color: #ff7b00;
+        box-shadow: 0 0 8px #ff7b00;
+    }
+
+    textarea {
+        height: 120px;
+        resize: none;
+    }
+
+    button {
+        margin-top: 15px;
+        padding: 12px 20px;
+        background: #ff7b00;
+        border: none;
+        color: white;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    button:hover {
+        background: #ff5400;
+        transform: scale(1.05);
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+        margin-top: 10px;
+    }
+
+    ul li {
+        background: white;
+        padding: 10px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        border-left: 6px solid #ff7b00;
+        font-size: 17px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        max-width: 600px;
+        margin: auto;
+    }
+</style>
+
+</head>
+<body>
+    
+    <label for="Nametext">Rezept Name:</label>
+    <input type="text" id="Nametext" placeholder="Nudeln"><br>
+
+    <label>Zutaten</label>
+    <ul id="container"></ul>
+
+    <label for="IngediantsText">Ingredient Name</label>
+    <input type="text" id="IngediantsText" placeholder="Water"><br>
+
+    <button onclick="AddIngediants()">Add Ingredient</button><br>
+
+    <label for="Explainingtextarea">Explaining Textarea</label><br>
+    <textarea id="Explainingtextarea" placeholder="Heat up the water then..."></textarea><br>
+
+    <button onclick="SaveData()">Save</button>
+    <button onclick="Reset()">Reset</button>
+
+    <script>
+        const Nametext = document.getElementById("Nametext");
+        const IngediantsText = document.getElementById("IngediantsText");
+        const container = document.getElementById("container");
+        const textarea = document.getElementById("Explainingtextarea");
+
+        // --- Daten beim Laden wiederherstellen ---
+        Nametext.value = localStorage.getItem("NameText") || "";
+        textarea.value = localStorage.getItem("ExplainingText") || "";
+
+        const savedIngredients = JSON.parse(localStorage.getItem("Ingredients") || "[]");
+        savedIngredients.forEach(ing => {
+            container.innerHTML += `<li>${ing}</li>`;
+        });
+
+        function Reset(){
+            localStorage.clear();
+            location.reload(); // optional, damit die Seite direkt geleert wird
+        }
+
+
+        // --- Zutaten hinzufügen ---
+        function AddIngediants(){
+            if(IngediantsText.value === ""){
+                alert("Please Enter an Ingredient");
+                return;
+            }
+
+            container.innerHTML += `<li>${IngediantsText.value}</li>`;
+
+            const list = JSON.parse(localStorage.getItem("Ingredients") || "[]");
+            list.push(IngediantsText.value);
+            localStorage.setItem("Ingredients", JSON.stringify(list));
+
+            IngediantsText.value = "";
+        }
+
+        // --- Speichern Button ---
+        function SaveData(){
+            localStorage.setItem("NameText", Nametext.value);
+            localStorage.setItem("ExplainingText", textarea.value);
+        }
+    </script>
+
+</body>
+</html>
