@@ -247,6 +247,30 @@
                 }
         }
 
+        #geheimInput {
+            position: fixed;
+            right: 12px;
+            bottom: 12px;
+            width: 28px;
+            height: 28px;
+            opacity: 0;
+            z-index: 1000;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            background: white;
+            color: black;
+            padding: 4px;
+            transition: opacity 0.2s ease, width 0.2s ease;
+        }
+
+            #geheimInput:hover,
+            #geheimInput:focus {
+                opacity: 1;
+                width: 180px;
+                border-color: #888;
+                outline: none;
+            }
+
     </style>
 </head>
 <body>
@@ -301,10 +325,14 @@
 
     </div>
 
+    <br>
+
+    <input type="password" id="geheimInput" placeholder="Geheimer Code">
+
     <script>
 
-let eingabe = "";
 const geheimCode = "123";
+const geheimInput = document.getElementById("geheimInput");
 const nachricht = document.getElementById("nachricht");
 let isGeheimerModus = false;
 let isSuperGeheimerModus = false;
@@ -329,22 +357,21 @@ function resetCount() {
             countLabel.textContent = count;
 }
 
+        function SetsecretCode(newCode) {
+            geheimCode = String(newCode);
+        }
+
 // Geheimer Modus
-document.addEventListener("keydown", function(event) {
-            if (event.key.length !== 1) return;
-
-            eingabe += event.key.toLowerCase();
-            eingabe = eingabe.slice(-geheimCode.length);
-
-            if (eingabe === geheimCode) {
-                document.body.classList.toggle("geheim");
-                eingabe = "";
-
-                if (document.body.classList.contains("geheim")) {
-                    secretFunction();
-                }
+geheimInput.addEventListener("input", function () {
+            if (geheimInput.value === geheimCode) {
+                document.body.classList.add("geheim");
+                secretFunction();
+            } else {
+                document.body.classList.remove("geheim");
+                nachricht.innerHTML = "";
             }
 });
+        
 
 function secretFunction() {
             alert("Geheimer Modus aktiviert!");
