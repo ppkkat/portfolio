@@ -87,9 +87,11 @@
                         attempts++;
                         if (guess < anser) {
                             window.alert("TOO LOW! TRY AGAIN!");
+                            min = anser;
                         }
                         else if (guess > anser) {
                             window.alert("TOO HIGH! TRY AGAIN!");
+                            max = anser;
                         }
                         else {
                             window.alert(`CORRECT! The answer was ${anser}. It took you ${attempts} attemps.The max was ${max}.`);
