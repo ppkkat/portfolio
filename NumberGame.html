@@ -88,10 +88,12 @@
                         if (guess < anser) {
                             window.alert("TOO LOW! TRY AGAIN!");
                             min = anser;
+                            console.log("min");
                         }
                         else if (guess > anser) {
                             window.alert("TOO HIGH! TRY AGAIN!");
                             max = anser;
+                            console.log("max");
                         }
                         else {
                             window.alert(`CORRECT! The answer was ${anser}. It took you ${attempts} attemps.The max was ${max}.`);
