@@ -1,106 +1,147 @@
-﻿<!DOCTYPE html>
-
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+```html
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Number Game</title>
+
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin-top: 50px;
         }
+
         h1 {
             color: #333;
         }
+
         #homeBnt {
             padding: 10px 20px;
             font-size: 1.5em;
             color: white;
             background-color: hsl(214 100% 74%);
+            border: none;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.25s;
         }
 
-            #homeBnt:hover {
-                background-color: hsl(214 100% 56%);
-            }
+        #homeBnt:hover {
+            background-color: hsl(214 100% 56%);
+        }
+
         button {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
             background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
         }
-            button:hover {
-                background-color: #45a049;
-            }
+
+        button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
+
 <body>
     <h1>Number Game</h1>
-    <button onclick="location.reload()">Restart</button>
 
-    <button id="homeBnt" onclick="window.location.href='index.html'">Home</button>
+    <button onclick="location.reload()">Restart</button>
+    <button id="homeBnt" onclick="window.location.href='index.html'">
+        Home
+    </button>
 
     <script>
-                //Number Game
-                let max;
-                let min = 0;
-                let anser;
+        // Number Game
 
-                let attempts = 0;
-                let guess;
-                let guessmax;
-                let running = false;
+        let min = 0;
+        let max;
+        let answer;
+        let attempts = 0;
+        let running = false;
 
+        // Ask the player for the maximum number
+        const input = window.prompt("Please enter the maximum number:");
 
-                if (!running) {
-                    guessmax = window.prompt(`Please enter the max.`);
-                    guessmax = Number(guessmax);
-                    max = Number(max);
-                    if (isNaN(guessmax)) {
-                        window.alert("Please enter a valid number")
-                    }
-                    else {
-                        max = guessmax;
-                        anser = Math.floor(Math.random() * max) + min;
-                        running = true;
-                    }
+        // Stop if the player cancels
+        if (input === null) {
+            window.alert("Game cancelled.");
+        } else {
+            max = Number(input);
 
-                }
+            // Validate the maximum number
+            if (
+                input.trim() === "" ||
+                !Number.isSafeInteger(max) ||
+                max < 1
+            ) {
+                window.alert(
+                    "Please enter a positive whole number."
+                );
+            } else {
+                // Generate a random integer from 0 to max, inclusive
+                answer = Math.floor(Math.random() * (max + 1));
+                running = true;
+
+                // Save the original maximum for the final message
+                const originalMax = max;
 
                 while (running) {
+                    const inputGuess = window.prompt(
+                        `Guess a number between ${min} - ${max}`
+                    );
 
-                    guess = window.prompt(`Guss a number between ${min} - ${max}`)
-                    guess = Number(guess);
-                    console.log(`The anser is ${anser}`);
-
-
-                    if (isNaN(guess)) {
-                        window.alert("Please enter a valid number")
+                    // Stop if the player cancels
+                    if (inputGuess === null) {
+                        window.alert("Game cancelled.");
+                        running = false;
+                        break;
                     }
-                    else if (guess < min || guess > max) {
-                        window.alert("Please enter a valid number")
+
+                    // Validate the guess
+                    if (
+                        inputGuess.trim() === "" ||
+                        !Number.isSafeInteger(Number(inputGuess))
+                    ) {
+                        window.alert("Please enter a valid whole number.");
+                        continue;
                     }
-                    else {
-                        attempts++;
-                        if (guess < anser) {
-                            window.alert("TOO LOW! TRY AGAIN!");
-                            min = anser;
-                            console.log("min");
-                        }
-                        else if (guess > anser) {
-                            window.alert("TOO HIGH! TRY AGAIN!");
-                            max = anser;
-                            console.log("max");
-                        }
-                        else {
-                            window.alert(`CORRECT! The answer was ${anser}. It took you ${attempts} attemps.The max was ${max}.`);
-                            running = false;
-                        }
+
+                    const guess = Number(inputGuess);
+
+                    if (guess < min || guess > max) {
+                        window.alert(
+                            `Please enter a number between ${min} and ${max}.`
+                        );
+                        continue;
+                    }
+
+                    attempts++;
+
+                    if (guess < answer) {
+                        window.alert("TOO LOW! TRY AGAIN!");
+                        min = guess + 1;
+                    } else if (guess > answer) {
+                        window.alert("TOO HIGH! TRY AGAIN!");
+                        max = guess - 1;
+                    } else {
+                        window.alert(
+                            `CORRECT! The answer was ${answer}.\n` +
+                            `It took you ${attempts} attempts.\n` +
+                            `The original maximum was ${originalMax}.`
+                        );
+
+                        running = false;
                     }
                 }
+            }
+        }
     </script>
 </body>
 </html>
+```s
