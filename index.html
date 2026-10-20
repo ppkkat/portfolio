@@ -422,25 +422,7 @@ function addCount() {
             }
 }
 
-        // ___-Modus
-
-        geheimInput.addEventListener("input", function () {
-            if (geheimInput.value === supergeheimCode) {
-                nachricht.innerHTML = "Super Geheim-Modus ist ready!";
-                SupersecretFunction();
-            } else {
-                document.body.classList.remove("geheim");
-                nachricht.innerHTML = "";
-            }
-});
-
-        function SupersecretFunction(){
-            alert("Super Geheimer Modus aktiviert!");
-
-            nachricht.innerHTML = `
-                <button id="SupergeheimerButton" class="Supergeheimer-button" onclick="alert("bruh")">Super Geheimer Button</button>
-            `;
-        }
+        
 
     </script>
 </body>
