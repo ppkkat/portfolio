@@ -426,7 +426,7 @@ function addCount() {
 
         geheimInput.addEventListener("input", function () {
             if (geheimInput.value === supergeheimCode) {
-                document.body.classList.add("geheim");
+                nachricht.innerHTML = "Super Geheim-Modus ist ready!";
                 SupersecretFunction();
             } else {
                 document.body.classList.remove("geheim");
