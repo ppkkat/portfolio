@@ -338,6 +338,7 @@
     <script>
 
 const geheimCode = "123";
+const supergeheimCode = "321";
 const geheimInput = document.getElementById("geheimInput");
 const nachricht = document.getElementById("nachricht");
 let isGeheimerModus = false;
@@ -420,6 +421,26 @@ function addCount() {
                 isSuperGeheimerModus = true;
             }
 }
+
+        // ___-Modus
+
+        geheimInput.addEventListener("input", function () {
+            if (geheimInput.value === supergeheimCode) {
+                document.body.classList.add("geheim");
+                SupersecretFunction();
+            } else {
+                document.body.classList.remove("geheim");
+                nachricht.innerHTML = "";
+            }
+});
+
+        function SupersecretFunction(){
+            alert("Geheimer Modus aktiviert!");
+
+            nachricht.innerHTML = `
+                <button id="SupergeheimerButton" class="Supergeheimer-button" onclick="addCount()">Super Geheimer Button</button>
+            `;
+        }
 
     </script>
 </body>
