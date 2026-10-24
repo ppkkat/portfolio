@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiener Bezirke Lernen - Interaktiver Trainer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        wien: {
+                            red: '#e2001a',
+                            blue: '#005b94',
+                            gold: '#f59e0b',
+                            dark: '#1e293b',
+                            bg: '#f8fafc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+
+        .district-path {
+            transition: all 0.25s ease;
+            cursor: pointer;
+            stroke: #ffffff;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .district-path:hover {
+            filter: brightness(1.15) drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+            transform: scale(1.01);
+            stroke-width: 3;
+        }
+
+        .district-text {
+            font-weight: 700;
+            font-size: 14px;
+            fill: #1e293b;
+            pointer-events: none;
+            user-select: none;
+            text-anchor: middle;
+            dominant-baseline: central;
+        }
+
+        .district-solved {
+            fill: #10b981 !important;
+            stroke: #047857 !important;
+        }
+
+        .district-active {
+            stroke: #3b82f6 !important;
+            stroke-width: 4 !important;
+            animation: pulse-border 1.5s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% { stroke-opacity: 1; }
+            50% { stroke-opacity: 0.4; }
+            100% { stroke-opacity: 1; }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col">
+
+    <!-- Header Navigation -->
+    <header class="bg-gradient-to-r from-red-700 via-red-600 to-rose-700 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-md border border-white/20">
+                    <i class="fa-solid fa-map-location-dot text-2xl text-amber-300"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">Wien Bezirke-Trainer</h1>
+                    <p class="text-xs text-red-100 font-medium">Interaktiv die 23 Wiener Gemeindebezirke lernen</p>
+                </div>
+            </div>
+
+            <!-- Mode Selector Tabs -->
+            <nav class="flex bg-red-900/40 p-1 rounded-xl backdrop-blur-md border border-white/10 w-full sm:w-auto justify-center">
+                <button id="tab-mode1" onclick="switchMode(1)" class="mode-tab flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 bg-white text-red-700 shadow-sm">
+                    <i class="fa-solid fa-stopwatch"></i>
+                    <span>Freies Erraten</span>
+                </button>
+                <button id="tab-mode2" onclick="switchMode(2)" class="mode-tab flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-white hover:bg-white/10">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <span>Quiz-Modus</span>
+                </button>
+                <button id="tab-mode3" onclick="switchMode(3)" class="mode-tab flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 text-white hover:bg-white/10">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>Lernkarte</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex-1 w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Interactive Map Column (Left / Top) -->
+        <section class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6 flex flex-col items-center relative overflow-hidden">
+            <div class="w-full flex justify-between items-center mb-4">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Interaktive Karte</span>
+                </div>
+                <button onclick="resetMapView()" class="text-xs text-slate-500 hover:text-slate-800 flex items-center gap-1 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-md transition-colors">
+                    <i class="fa-solid fa-rotate-right text-xs"></i> Highlights zurücksetzen
+                </button>
+            </div>
+
+            <!-- Vienna SVG Map -->
+            <div class="w-full h-auto max-h-[500px] flex justify-center items-center relative py-2">
+                <svg id="vienna-map" viewBox="0 0 800 650" class="w-full h-full max-h-[480px] drop-shadow-md">
+                    <defs>
+                        <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+                            <feDropShadow dx="2" dy="3" stdDeviation="3" flood-opacity="0.15"/>
+                        </filter>
+                    </defs>
+
+                    <!-- Danube River / Donau & Donaukanal -->
+                    <path d="M 280,0 Q 320,120 380,200 T 570,450 T 720,650" stroke="#38bdf8" stroke-width="28" fill="none" opacity="0.85" stroke-linecap="round"/>
+                    <path d="M 280,0 Q 320,120 380,200 T 570,450 T 720,650" stroke="#0284c7" stroke-width="12" fill="none" opacity="0.9" stroke-linecap="round"/>
+                    
+                    <!-- Donaukanal Loop -->
+                    <path d="M 330,120 C 310,180 320,240 375,300 C 430,360 480,410 570,450" stroke="#0284c7" stroke-width="6" fill="none" opacity="0.8"/>
+
+                    <!-- Districts Path Group -->
+                    <g id="districts-group" filter="url(#shadow)">
+                        <!-- 1. Innere Stadt -->
+                        <path id="district-1" class="district-path" fill="#fca5a5" d="M355,285 L375,275 L390,295 L375,325 L345,315 Z" onclick="handleDistrictClick(1)"></path>
+                        
+                        <!-- 2. Leopoldstadt -->
+                        <path id="district-2" class="district-path" fill="#fef08a" d="M380,200 L430,220 L510,340 L450,380 L380,300 Q330,240 380,200 Z" onclick="handleDistrictClick(2)"></path>
+                        
+                        <!-- 3. Landstraße -->
+                        <path id="district-3" class="district-path" fill="#fbcfe8" d="M380,300 L450,380 L480,440 L410,430 L375,325 Z" onclick="handleDistrictClick(3)"></path>
+                        
+                        <!-- 4. Wieden -->
+                        <path id="district-4" class="district-path" fill="#fed7aa" d="M345,315 L375,325 L370,365 L335,355 Z" onclick="handleDistrictClick(4)"></path>
+                        
+                        <!-- 5. Margareten -->
+                        <path id="district-5" class="district-path" fill="#fde68a" d="M335,355 L370,365 L360,400 L315,385 Z" onclick="handleDistrictClick(5)"></path>
+                        
+                        <!-- 6. Mariahilf -->
+                        <path id="district-6" class="district-path" fill="#a7f3d0" d="M310,335 L345,315 L335,355 L300,350 Z" onclick="handleDistrictClick(6)"></path>
+                        
+                        <!-- 7. Neubau -->
+                        <path id="district-7" class="district-path" fill="#fef08a" d="M305,300 L355,285 L345,315 L310,335 Z" onclick="handleDistrictClick(7)"></path>
+                        
+                        <!-- 8. Josefstadt -->
+                        <path id="district-8" class="district-path" fill="#fca5a5" d="M300,270 L350,260 L355,285 L305,300 Z" onclick="handleDistrictClick(8)"></path>
+                        
+                        <!-- 9. Alsergrund -->
+                        <path id="district-9" class="district-path" fill="#fef08a" d="M320,200 L360,200 L350,260 L300,270 L310,230 Z" onclick="handleDistrictClick(9)"></path>
+                        
+                        <!-- 10. Favoriten -->
+                        <path id="district-10" class="district-path" fill="#fed7aa" d="M335,355 L370,365 L410,430 L460,540 L380,600 L300,530 L315,385 L360,400 Z" onclick="handleDistrictClick(10)"></path>
+                        
+                        <!-- 11. Simmering -->
+                        <path id="district-11" class="district-path" fill="#fb923c" d="M410,430 L480,440 L585,550 L530,600 L460,540 Z" onclick="handleDistrictClick(11)"></path>
+                        
+                        <!-- 12. Meidling -->
+                        <path id="district-12" class="district-path" fill="#facc15" d="M260,390 L315,385 L300,530 L245,510 L240,430 Z" onclick="handleDistrictClick(12)"></path>
+                        
+                        <!-- 13. Hietzing -->
+                        <path id="district-13" class="district-path" fill="#fef08a" d="M80,370 L240,390 L240,430 L245,510 L180,540 L70,520 Z" onclick="handleDistrictClick(13)"></path>
+                        
+                        <!-- 14. Penzing -->
+                        <path id="district-14" class="district-path" fill="#fed7aa" d="M30,220 L160,220 L220,300 L240,390 L80,370 Z" onclick="handleDistrictClick(14)"></path>
+                        
+                        <!-- 15. Rudolfsheim-Fünfhaus -->
+                        <path id="district-15" class="district-path" fill="#e2e8f0" d="M240,310 L305,300 L310,335 L300,350 L260,390 L240,340 Z" onclick="handleDistrictClick(15)"></path>
+                        
+                        <!-- 16. Ottakring -->
+                        <path id="district-16" class="district-path" fill="#fdba74" d="M160,280 L230,270 L240,310 L240,340 L190,340 Z" onclick="handleDistrictClick(16)"></path>
+                        
+                        <!-- 17. Hernals -->
+                        <path id="district-17" class="district-path" fill="#fca5a5" d="M110,230 L220,210 L230,270 L160,280 Z" onclick="handleDistrictClick(17)"></path>
+                        
+                        <!-- 18. Währing -->
+                        <path id="district-18" class="district-path" fill="#fde68a" d="M200,185 L290,185 L300,270 L230,220 Z" onclick="handleDistrictClick(18)"></path>
+                        
+                        <!-- 19. Döbling -->
+                        <path id="district-19" class="district-path" fill="#f87171" d="M180,100 L310,120 L320,200 L200,185 Z" onclick="handleDistrictClick(19)"></path>
+                        
+                        <!-- 20. Brigittenau -->
+                        <path id="district-20" class="district-path" fill="#fca5a5" d="M320,120 L380,200 Q330,240 360,200 Z" onclick="handleDistrictClick(20)"></path>
+                        
+                        <!-- 21. Floridsdorf -->
+                        <path id="district-21" class="district-path" fill="#fef08a" d="M320,20 L450,20 L510,190 L380,200 Z" onclick="handleDistrictClick(21)"></path>
+                        
+                        <!-- 22. Donaustadt -->
+                        <path id="district-22" class="district-path" fill="#fb923c" d="M450,20 L580,90 L710,500 L570,450 L510,190 Z" onclick="handleDistrictClick(22)"></path>
+                        
+                        <!-- 23. Liesing -->
+                        <path id="district-23" class="district-path" fill="#fb923c" d="M70,520 L180,540 L245,510 L300,530 L280,620 L90,580 Z" onclick="handleDistrictClick(23)"></path>
+                    </g>
+
+                    <!-- Numbers Overlay -->
+                    <g id="district-labels">
+                        <text x="365" y="300" class="district-text">1</text>
+                        <text x="430" y="270" class="district-text">2</text>
+                        <text x="415" y="360" class="district-text">3</text>
+                        <text x="355" y="340" class="district-text">4</text>
+                        <text x="345" y="375" class="district-text">5</text>
+                        <text x="323" y="333" class="district-text">6</text>
+                        <text x="328" y="310" class="district-text">7</text>
+                        <text x="325" y="282" class="district-text">8</text>
+                        <text x="330" y="235" class="district-text">9</text>
+                        <text x="375" y="470" class="district-text">10</text>
+                        <text x="480" y="500" class="district-text">11</text>
+                        <text x="270" y="450" class="district-text">12</text>
+                        <text x="150" y="460" class="district-text">13</text>
+                        <text x="130" y="300" class="district-text">14</text>
+                        <text x="270" y="338" class="district-text">15</text>
+                        <text x="200" y="310" class="district-text">16</text>
+                        <text x="175" y="250" class="district-text">17</text>
+                        <text x="245" y="200" class="district-text">18</text>
+                        <text x="250" y="145" class="district-text">19</text>
+                        <text x="355" y="160" class="district-text">20</text>
+                        <text x="410" y="110" class="district-text">21</text>
+                        <text x="560" y="270" class="district-text">22</text>
+                        <text x="180" y="565" class="district-text">23</text>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- Toast / Message Box -->
+            <div id="map-toast" class="opacity-0 transition-opacity duration-300 absolute bottom-4 bg-slate-900/90 text-white px-4 py-2 rounded-xl text-sm font-medium shadow-lg backdrop-blur-sm pointer-events-none">
+                Bezirk angeklickt
+            </div>
+        </section>
+
+        <!-- Right Controls & Active Mode Container -->
+        <section class="lg:col-span-5 flex flex-col gap-6">
+
+            <!-- MODE 1: FREIES ERRATEN / TIME TRIAL -->
+            <div id="view-mode1" class="mode-view bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 space-y-5">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">Freies Erraten</h2>
+                        <p class="text-xs text-slate-500">Gib Name oder Nummer ein (z.B. "1", "Innere Stadt", "16")</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="m1-timer" class="font-mono text-xl font-bold text-red-600">00:00</span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div>
+                    <div class="flex justify-between text-xs font-semibold text-slate-600 mb-1.5">
+                        <span>Fortschritt</span>
+                        <span id="m1-progress-text">0 / 23 gelöst</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
+                        <div id="m1-progress-bar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-3 rounded-full transition-all duration-300 w-0"></div>
+                    </div>
+                </div>
+
+                <!-- Input Box -->
+                <div class="space-y-2">
+                    <label for="m1-input" class="block text-xs font-semibold text-slate-600">Deine Eingabe:</label>
+                    <div class="relative flex items-center">
+                        <input type="text" id="m1-input" placeholder="Z.B. Ottakring, 16, 1. Bezirk..." autofocus autocomplete="off"
+                               class="w-full px-4 py-3 text-base rounded-xl border-2 border-slate-200 focus:border-red-500 focus:outline-none transition-all shadow-sm pr-12">
+                        <button onclick="checkMode1Input()" class="absolute right-2 bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg transition-colors">
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    <div id="m1-feedback" class="text-xs font-medium min-h-[1.25rem] text-slate-500"></div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="startMode1()" id="m1-start-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-4 rounded-xl shadow-md transition-all text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-play"></i> Neues Spiel / Reset
+                    </button>
+                    <button onclick="giveUpMode1()" id="m1-giveup-btn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-xl transition-all text-sm">
+                        Aufgeben
+                    </button>
+                </div>
+
+                <!-- Solved List Table -->
+                <div class="mt-4 border-t border-slate-100 pt-4">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Gelöste Bezirke</h3>
+                    <div id="m1-solved-list" class="max-h-56 overflow-y-auto space-y-1.5 pr-1">
+                        <p class="text-xs text-slate-400 italic">Noch keine Bezirke erraten. Starte oben mit der Eingabe!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODE 2: GEZIELTES QUIZ -->
+            <div id="view-mode2" class="mode-view hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 space-y-5">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">Gezieltes Quiz</h2>
+                        <p class="text-xs text-slate-500">Beantworte Fragen zu Nummern & Namen</p>
+                    </div>
+                    <div class="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5">
+                        <i class="fa-solid fa-trophy text-amber-500"></i>
+                        <span id="m2-score">Punkte: 0</span>
+                    </div>
+                </div>
+
+                <!-- Question Card -->
+                <div id="m2-question-card" class="bg-slate-50 rounded-xl p-5 border border-slate-200 text-center space-y-3">
+                    <span id="m2-question-badge" class="inline-block bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-md">Frage 1</span>
+                    <h3 id="m2-question-text" class="text-xl font-extrabold text-slate-800">
+                        Welcher Bezirk hat die Nummer <span class="text-red-600">16</span>?
+                    </h3>
+                    <p class="text-xs text-slate-500">Wähle die richtige Antwort unten oder klicke auf die Karte</p>
+                </div>
+
+                <!-- Multiple Choice Options -->
+                <div id="m2-options" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <!-- Dynamic Buttons -->
+                </div>
+
+                <!-- Direct Answer Field -->
+                <div class="pt-2 border-t border-slate-100 space-y-2">
+                    <label for="m2-direct-input" class="block text-xs font-semibold text-slate-600">Oder Tippen:</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="m2-direct-input" placeholder="Name oder Nummer eingeben..."
+                               class="flex-1 px-4 py-2.5 text-sm rounded-xl border border-slate-200 focus:border-red-500 focus:outline-none transition-all shadow-sm">
+                        <button onclick="submitMode2Direct()" class="bg-slate-800 hover:bg-slate-900 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-colors">
+                            Prüfen
+                        </button>
+                    </div>
+                </div>
+
+                <div id="m2-feedback" class="p-3 rounded-xl text-xs font-semibold hidden"></div>
+
+                <button onclick="nextQuizQuestion()" id="m2-next-btn" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md transition-all text-sm flex items-center justify-center gap-2">
+                    <span>Nächste Frage</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- MODE 3: INTERAKTIVE LERNKARTE -->
+            <div id="view-mode3" class="mode-view hidden bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 space-y-4">
+                <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">Lernkarte Übersicht</h2>
+                        <p class="text-xs text-slate-500">Alle 23 Wiener Gemeindebezirke im Überblick</p>
+                    </div>
+                </div>
+
+                <!-- Search / Filter -->
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                    <input type="text" id="m3-search" oninput="filterLernkarte()" placeholder="Bezirk suchen..."
+                           class="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-slate-200 focus:border-red-500 focus:outline-none transition-all">
+                </div>
+
+                <!-- District List -->
+                <div id="m3-district-grid" class="max-h-[420px] overflow-y-auto space-y-2 pr-1">
+                    <!-- Dynamically Generated -->
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-auto py-4 text-center text-xs text-slate-500">
+        <p>Wiener Gemeindebezirke Lern-App &bull; Interaktive Karte & Quiz</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // 1. Data Source: 23 Vienna Districts
+        const districts = [
+            { num: 1, name: "Innere Stadt", color: "#fca5a5" },
+            { num: 2, name: "Leopoldstadt", color: "#fef08a" },
+            { num: 3, name: "Landstraße", color: "#fbcfe8" },
+            { num: 4, name: "Wieden", color: "#fed7aa" },
+            { num: 5, name: "Margareten", color: "#fde68a" },
+            { num: 6, name: "Mariahilf", color: "#a7f3d0" },
+            { num: 7, name: "Neubau", color: "#fef08a" },
+            { num: 8, name: "Josefstadt", color: "#fca5a5" },
+            { num: 9, name: "Alsergrund", color: "#fef08a" },
+            { num: 10, name: "Favoriten", color: "#fed7aa" },
+            { num: 11, name: "Simmering", color: "#fb923c" },
+            { num: 12, name: "Meidling", color: "#facc15" },
+            { num: 13, name: "Hietzing", color: "#fef08a" },
+            { num: 14, name: "Penzing", color: "#fed7aa" },
+            { num: 15, name: "Rudolfsheim-Fünfhaus", color: "#e2e8f0" },
+            { num: 16, name: "Ottakring", color: "#fdba74" },
+            { num: 17, name: "Hernals", color: "#fca5a5" },
+            { num: 18, name: "Währing", color: "#fde68a" },
+            { num: 19, name: "Döbling", color: "#f87171" },
+            { num: 20, name: "Brigittenau", color: "#fca5a5" },
+            { num: 21, name: "Floridsdorf", color: "#fef08a" },
+            { num: 22, name: "Donaustadt", color: "#fb923c" },
+            { num: 23, name: "Liesing", color: "#fb923c" }
+        ];
+
+        // Aliases for intelligent fuzzy matching
+        const districtAliases = {
+            1: ["1", "1.", "1. bezirk", "innere stadt", "innerestadt"],
+            2: ["2", "2.", "2. bezirk", "leopoldstadt"],
+            3: ["3", "3.", "3. bezirk", "landstraße", "landstrasse", "landstrasse"],
+            4: ["4", "4.", "4. bezirk", "wieden"],
+            5: ["5", "5.", "5. bezirk", "margareten", "margarethen"],
+            6: ["6", "6.", "6. bezirk", "mariahilf"],
+            7: ["7", "7.", "7. bezirk", "neubau"],
+            8: ["8", "8.", "8. bezirk", "josefstadt"],
+            9: ["9", "9.", "9. bezirk", "alsergrund"],
+            10: ["10", "10.", "10. bezirk", "favoriten"],
+            11: ["11", "11.", "11. bezirk", "simmering"],
+            12: ["12", "12.", "12. bezirk", "meidling"],
+            13: ["13", "13.", "13. bezirk", "hietzing"],
+            14: ["14", "14.", "14. bezirk", "penzing"],
+            15: ["15", "15.", "15. bezirk", "rudolfsheim-fünfhaus", "rudolfsheim fünfhaus", "rudolfsheim", "fünfhaus", "fuenfhaus"],
+            16: ["16", "16.", "16. bezirk", "ottakring"],
+            17: ["17", "17.", "17. bezirk", "hernals"],
+            18: ["18", "18.", "18. bezirk", "währing", "waehring"],
+            19: ["19", "19.", "19. bezirk", "döbling", "doebling"],
+            20: ["20", "20.", "20. bezirk", "brigittenau"],
+            21: ["21", "21.", "21. bezirk", "floridsdorf"],
+            22: ["22", "22.", "22. bezirk", "donaustadt"],
+            23: ["23", "23.", "23. bezirk", "liesing"]
+        };
+
+        // App State Variables
+        let currentMode = 1;
+        
+        // Mode 1 State
+        let m1Solved = new Set();
+        let m1Timer = null;
+        let m1Seconds = 0;
+        let m1IsRunning = false;
+
+        // Mode 2 State
+        let m2Score = 0;
+        let m2CurrentQuestion = null;
+
+        // Initialize App
+        window.onload = function() {
+            renderLernkarte();
+            startMode1();
+            
+            // Enter key event listeners
+            document.getElementById('m1-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') checkMode1Input();
+            });
+            
+            document.getElementById('m2-direct-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') submitMode2Direct();
+            });
+        };
+
+        // Switch Mode Tabs
+        function switchMode(modeNum) {
+            currentMode = modeNum;
+
+            // Reset UI Tabs
+            document.querySelectorAll('.mode-tab').forEach(tab => {
+                tab.classList.remove('bg-white', 'text-red-700', 'shadow-sm');
+                tab.classList.add('text-white', 'hover:bg-white/10');
+            });
+            const activeTab = document.getElementById(`tab-mode${modeNum}`);
+            activeTab.classList.add('bg-white', 'text-red-700', 'shadow-sm');
+            activeTab.classList.remove('text-white', 'hover:bg-white/10');
+
+            // Hide/Show Views
+            document.querySelectorAll('.mode-view').forEach(view => view.classList.add('hidden'));
+            document.getElementById(`view-mode${modeNum}`).classList.remove('hidden');
+
+            resetMapView();
+
+            if (modeNum === 1) {
+                // Restore Mode 1 map highlights
+                m1Solved.forEach(num => highlightMapDistrict(num, true));
+            } else if (modeNum === 2) {
+                nextQuizQuestion();
+            }
+        }
+
+        /* ----------------------------------------------------
+           MODE 1 LOGIC: Freies Erraten / Timer Trial
+        ---------------------------------------------------- */
+        function startMode1() {
+            m1Solved.clear();
+            m1Seconds = 0;
+            m1IsRunning = true;
+            clearInterval(m1Timer);
+            
+            document.getElementById('m1-timer').innerText = "00:00";
+            document.getElementById('m1-input').value = "";
+            document.getElementById('m1-feedback').innerText = "";
+            document.getElementById('m1-feedback').className = "text-xs font-medium min-h-[1.25rem] text-slate-500";
+            
+            m1Timer = setInterval(() => {
+                m1Seconds++;
+                const mins = String(Math.floor(m1Seconds / 60)).padStart(2, '0');
+                const secs = String(m1Seconds % 60).padStart(2, '0');
+                document.getElementById('m1-timer').innerText = `${mins}:${secs}`;
+            }, 1000);
+
+            resetMapView();
+            updateMode1Progress();
+        }
+
+        function checkMode1Input() {
+            if (!m1IsRunning) startMode1();
+
+            const rawInput = document.getElementById('m1-input').value.trim().toLowerCase();
+            if (!rawInput) return;
+
+            const matchedDistrict = findDistrictByInput(rawInput);
+            const feedbackEl = document.getElementById('m1-feedback');
+
+            if (matchedDistrict) {
+                if (m1Solved.has(matchedDistrict.num)) {
+                    feedbackEl.innerText = `⚠️ ${matchedDistrict.num}. ${matchedDistrict.name} wurde bereits erraten!`;
+                    feedbackEl.className = "text-xs font-semibold text-amber-600 min-h-[1.25rem]";
+                } else {
+                    m1Solved.add(matchedDistrict.num);
+                    highlightMapDistrict(matchedDistrict.num, true);
+                    feedbackEl.innerText = `Richtig! ${matchedDistrict.num}. ${matchedDistrict.name}`;
+                    feedbackEl.className = "text-xs font-semibold text-emerald-600 min-h-[1.25rem]";
+                    showToast(`+ ${matchedDistrict.num}. ${matchedDistrict.name}`);
+                    updateMode1Progress();
+                }
+            } else {
+                feedbackEl.innerText = `❌ "${document.getElementById('m1-input').value}" ist kein bekannter Wiener Bezirk.`;
+                feedbackEl.className = "text-xs font-semibold text-rose-600 min-h-[1.25rem]";
+            }
+
+            document.getElementById('m1-input').value = "";
+
+            // Check if user solved all 23
+            if (m1Solved.size === 23) {
+                clearInterval(m1Timer);
+                m1IsRunning = false;
+                feedbackEl.innerText = `🎉 Hervorragend! Du hast alle 23 Bezirke in ${document.getElementById('m1-timer').innerText} gefunden!`;
+                feedbackEl.className = "text-sm font-bold text-emerald-600 min-h-[1.25rem]";
+            }
+        }
+
+        function giveUpMode1() {
+            clearInterval(m1Timer);
+            m1IsRunning = false;
+            
+            // Show all unsolved districts on map
+            districts.forEach(d => {
+                if (!m1Solved.has(d.num)) {
+                    highlightMapDistrict(d.num, true);
+                }
+            });
+            
+            document.getElementById('m1-feedback').innerText = "Aufgegeben! Alle Bezirke auf der Karte aufgedeckt.";
+            document.getElementById('m1-feedback').className = "text-xs font-semibold text-slate-700 min-h-[1.25rem]";
+            updateMode1Progress();
+        }
+
+        function updateMode1Progress() {
+            const count = m1Solved.size;
+            document.getElementById('m1-progress-text').innerText = `${count} / 23 gelöst`;
+            const pct = Math.round((count / 23) * 100);
+            document.getElementById('m1-progress-bar').style.width = `${pct}%`;
+
+            // Update Solved List
+            const listEl = document.getElementById('m1-solved-list');
+            if (count === 0) {
+                listEl.innerHTML = `<p class="text-xs text-slate-400 italic">Noch keine Bezirke erraten. Starte oben mit der Eingabe!</p>`;
+                return;
+            }
+
+            let html = "";
+            const sortedSolved = Array.from(m1Solved).sort((a,b) => a - b);
+            sortedSolved.forEach(num => {
+                const d = districts.find(item => item.num === num);
+                html += `
+                    <div class="flex items-center justify-between bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-xs">
+                        <span class="font-bold text-slate-700">${d.num}. Bezirk</span>
+                        <span class="font-semibold text-emerald-700">${d.name}</span>
+                    </div>
+                `;
+            });
+            listEl.innerHTML = html;
+        }
+
+        /* ----------------------------------------------------
+           MODE 2 LOGIC: Gezieltes Quiz
+        ---------------------------------------------------- */
+        function nextQuizQuestion() {
+            resetMapView();
+            document.getElementById('m2-feedback').classList.add('hidden');
+            document.getElementById('m2-direct-input').value = "";
+
+            const target = districts[Math.floor(Math.random() * districts.length)];
+            const modeType = Math.random() > 0.5 ? 'numberToName' : 'nameToNumber';
+            
+            m2CurrentQuestion = { target, modeType, answered: false };
+
+            const questionTextEl = document.getElementById('m2-question-text');
+            const optionsEl = document.getElementById('m2-options');
+
+            // Highlight target district on map
+            highlightActiveMapDistrict(target.num);
+
+            if (modeType === 'numberToName') {
+                questionTextEl.innerHTML = `Welcher Bezirk ist Nummer <span class="text-red-600">${target.num}</span>?`;
+                
+                // Generate 4 Multiple Choice Options (Names)
+                const options = generateOptions(target, 'name');
+                optionsEl.innerHTML = options.map(opt => `
+                    <button onclick="checkMode2Answer('${opt.name}')" class="m2-opt-btn w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-semibold py-3 px-4 rounded-xl text-xs sm:text-sm text-left transition-all shadow-sm flex items-center justify-between">
+                        <span>${opt.name}</span>
+                        <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
+                    </button>
+                `).join('');
+
+            } else {
+                questionTextEl.innerHTML = `Welche Nummer hat der Bezirk <span class="text-red-600">${target.name}</span>?`;
+
+                // Generate 4 Multiple Choice Options (Numbers)
+                const options = generateOptions(target, 'num');
+                optionsEl.innerHTML = options.map(opt => `
+                    <button onclick="checkMode2Answer(${opt.num})" class="m2-opt-btn w-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-semibold py-3 px-4 rounded-xl text-xs sm:text-sm text-left transition-all shadow-sm flex items-center justify-between">
+                        <span>${opt.num}. Bezirk</span>
+                        <i class="fa-solid fa-chevron-right text-slate-300 text-xs"></i>
+                    </button>
+                `).join('');
+            }
+        }
+
+        function generateOptions(correctDistrict, key) {
+            const result = [correctDistrict];
+            while (result.length < 4) {
+                const rand = districts[Math.floor(Math.random() * districts.length)];
+                if (!result.some(d => d.num === rand.num)) {
+                    result.push(rand);
+                }
+            }
+            // Shuffle
+            return result.sort(() => Math.random() - 0.5);
+        }
+
+        function checkMode2Answer(userAnswer) {
+            if (m2CurrentQuestion.answered) return;
+            m2CurrentQuestion.answered = true;
+
+            const target = m2CurrentQuestion.target;
+            const feedbackEl = document.getElementById('m2-feedback');
+            feedbackEl.classList.remove('hidden');
+
+            let isCorrect = false;
+            if (typeof userAnswer === 'number') {
+                isCorrect = (userAnswer === target.num);
+            } else {
+                const matched = findDistrictByInput(userAnswer);
+                isCorrect = matched && (matched.num === target.num);
+            }
+
+            if (isCorrect) {
+                m2Score += 10;
+                feedbackEl.className = "p-3 rounded-xl text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200";
+                feedbackEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> Richtig! Es ist ${target.num}. ${target.name}. (+10 Punkte)`;
+                highlightMapDistrict(target.num, true);
+            } else {
+                m2Score = Math.max(0, m2Score - 5);
+                feedbackEl.className = "p-3 rounded-xl text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-200";
+                feedbackEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600 mr-1.5"></i> Falsch! Richtig wäre: <strong>${target.num}. ${target.name}</strong> gewesen.`;
+            }
+
+            document.getElementById('m2-score').innerText = `Punkte: ${m2Score}`;
+            
+            // Disable buttons after answer
+            document.querySelectorAll('.m2-opt-btn').forEach(btn => btn.disabled = true);
+        }
+
+        function submitMode2Direct() {
+            const inputVal = document.getElementById('m2-direct-input').value.trim();
+            if (inputVal) {
+                checkMode2Answer(inputVal);
+            }
+        }
+
+        /* ----------------------------------------------------
+           MODE 3 LOGIC: Interaktive Lernkarte
+        ---------------------------------------------------- */
+        function renderLernkarte(filterText = "") {
+            const grid = document.getElementById('m3-district-grid');
+            grid.innerHTML = "";
+
+            const filtered = districts.filter(d => 
+                d.name.toLowerCase().includes(filterText.toLowerCase()) || 
+                d.num.toString().includes(filterText)
+            );
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<p class="text-xs text-slate-400 italic p-2">Kein Bezirk für "${filterText}" gefunden.</p>`;
+                return;
+            }
+
+            filtered.forEach(d => {
+                const card = document.createElement('div');
+                card.className = "flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 hover:border-red-300 hover:bg-red-50/50 transition-all cursor-pointer group";
+                card.onclick = () => {
+                    resetMapView();
+                    highlightActiveMapDistrict(d.num);
+                    showToast(`${d.num}. ${d.name} ausgewählt`);
+                };
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-lg bg-red-600 text-white font-bold flex items-center justify-center text-xs shadow-sm">
+                            ${d.num}
+                        </span>
+                        <span class="font-bold text-sm text-slate-800 group-hover:text-red-700 transition-colors">
+                            ${d.name}
+                        </span>
+                    </div>
+                    <i class="fa-solid fa-location-dot text-slate-300 group-hover:text-red-500 transition-colors text-sm"></i>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterLernkarte() {
+            const val = document.getElementById('m3-search').value;
+            renderLernkarte(val);
+        }
+
+        /* ----------------------------------------------------
+           HELPER & MAP FUNCTIONS
+        ---------------------------------------------------- */
+        function findDistrictByInput(inputStr) {
+            const clean = inputStr.trim().toLowerCase()
+                .replace(/ä/g, "ae")
+                .replace(/ö/g, "oe")
+                .replace(/ü/g, "ue")
+                .replace(/ß/g, "ss");
+
+            for (const [numStr, aliases] of Object.entries(districtAliases)) {
+                for (const alias of aliases) {
+                    const cleanAlias = alias
+                        .replace(/ä/g, "ae")
+                        .replace(/ö/g, "oe")
+                        .replace(/ü/g, "ue")
+                        .replace(/ß/g, "ss");
+                    
+                    if (clean === cleanAlias || clean === cleanAlias.replace(/\./g, "")) {
+                        return districts.find(d => d.num === parseInt(numStr));
+                    }
+                }
+            }
+            return null;
+        }
+
+        function handleDistrictClick(districtNum) {
+            const district = districts.find(d => d.num === districtNum);
+            showToast(`${district.num}. ${district.name}`);
+
+            if (currentMode === 1) {
+                // Submit clicking as answer if running
+                document.getElementById('m1-input').value = district.name;
+                checkMode1Input();
+            } else if (currentMode === 2) {
+                checkMode2Answer(district.name);
+            } else if (currentMode === 3) {
+                resetMapView();
+                highlightActiveMapDistrict(districtNum);
+            }
+        }
+
+        function highlightMapDistrict(num, solved = true) {
+            const path = document.getElementById(`district-${num}`);
+            if (path) {
+                if (solved) {
+                    path.classList.add('district-solved');
+                } else {
+                    path.classList.remove('district-solved');
+                }
+            }
+        }
+
+        function highlightActiveMapDistrict(num) {
+            const path = document.getElementById(`district-${num}`);
+            if (path) {
+                path.classList.add('district-active');
+            }
+        }
+
+        function resetMapView() {
+            districts.forEach(d => {
+                const path = document.getElementById(`district-${d.num}`);
+                if (path) {
+                    path.classList.remove('district-solved', 'district-active');
+                }
+            });
+        }
+
+        function showToast(text) {
+            const toast = document.getElementById('map-toast');
+            toast.innerText = text;
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
