@@ -1,0 +1,314 @@
+﻿
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kgV Generator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #6fb1fc, #4364f7, #3b3b98);
+            min-height: 100vh;
+            margin: 0;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #252550;
+        }
+
+        .container {
+            background: white;
+            padding: 35px;
+            border-radius: 22px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 440px;
+        }
+
+        h1 {
+            color: #3b3b98;
+            text-align: center;
+            font-size: 28px;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #777;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border-radius: 10px;
+            border: 2px solid #d7dcf5;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+            input:focus {
+                border-color: #4364f7;
+                box-shadow: 0 0 0 3px rgba(67, 100, 247, 0.12);
+            }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        button {
+            padding: 13px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+            button:hover {
+                transform: translateY(-2px);
+            }
+
+            button:focus-visible {
+                outline: 3px solid #8abaff;
+                outline-offset: 3px;
+            }
+
+        #calBtn {
+            flex: 2;
+            background: #3b3b98;
+            color: white;
+        }
+
+            #calBtn:hover {
+                background: #2d2d72;
+            }
+
+        #rsBnt {
+            flex: 1;
+            background: #e5e7eb;
+            color: #333;
+        }
+
+            #rsBnt:hover {
+                background: #d1d5db;
+            }
+
+        #result {
+            margin-top: 25px;
+            padding: 16px;
+            background: #f0f4ff;
+            border-left: 5px solid #3b3b98;
+            border-radius: 10px;
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+        }
+
+            #result:empty {
+                display: none;
+            }
+
+        .result-title {
+            font-weight: bold;
+            color: #3b3b98;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .answer {
+            font-size: 22px;
+            font-weight: bold;
+            color: #3b3b98;
+            margin-top: 8px;
+        }
+
+        .home-btn {
+            margin-top: 22px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 12px 30px;
+        }
+
+            .home-btn:hover {
+                background: rgba(255, 255, 255, 0.35);
+            }
+
+        .error {
+            color: #b42318;
+            background: #fff0ef !important;
+            border-left-color: #b42318 !important;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 24px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="container">
+        <h1>kgV Generator</h1>
+
+        <p class="subtitle">
+            Berechne das kleinste gemeinsame Vielfache
+            zweier Zahlen.
+        </p>
+
+        <form id="calcForm">
+            <label for="num1">Erste Zahl:</label>
+            <input type="number"
+                   id="num1"
+                   placeholder="z. B. 12"
+                   min="1"
+                   max="1000000"
+                   step="1"
+                   required>
+
+            <label for="num2">Zweite Zahl:</label>
+            <input type="number"
+                   id="num2"
+                   placeholder="z. B. 18"
+                   min="1"
+                   max="1000000"
+                   step="1"
+                   required>
+
+            <div class="buttons">
+                <button type="submit" id="calBtn">
+                    Berechnen
+                </button>
+
+                <button type="reset" id="rsBnt">
+                    Reset
+                </button>
+            </div>
+        </form>
+
+        <div id="result" aria-live="polite"></div>
+    </main>
+
+    <button class="home-btn" type="button" id="homeBtn">
+        ← Home
+    </button>
+
+    <script>
+        const form = document.getElementById("calcForm");
+        const resultBox = document.getElementById("result");
+
+        // Größten gemeinsamen Teiler berechnen
+        function getGGT(a, b) {
+            while (b !== 0) {
+                const rest = a % b;
+                a = b;
+                b = rest;
+            }
+
+            return a;
+        }
+
+        // Kleinstes gemeinsames Vielfaches berechnen
+        function getKGV(a, b) {
+            return (a / getGGT(a, b)) * b;
+        }
+
+        // Berechnung starten
+        form.addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const num1 = Number(
+                document.getElementById("num1").value
+            );
+
+            const num2 = Number(
+                document.getElementById("num2").value
+            );
+
+            if (
+                !Number.isSafeInteger(num1) ||
+                !Number.isSafeInteger(num2) ||
+                num1 < 1 ||
+                num2 < 1 ||
+                num1 > 1000000 ||
+                num2 > 1000000
+            ) {
+                resultBox.className = "error";
+                resultBox.textContent =
+                    "Bitte gib zwei ganze Zahlen zwischen 1 und 1.000.000 ein.";
+                return;
+            }
+
+            const ggt = getGGT(num1, num2);
+            const kgv = getKGV(num1, num2);
+
+            resultBox.className = "";
+
+            resultBox.innerHTML = `
+                <div class="result-title">Ergebnis</div>
+
+                <div>
+                    <strong>Erste Zahl:</strong> ${num1}
+                </div>
+
+                <div>
+                    <strong>Zweite Zahl:</strong> ${num2}
+                </div>
+
+                <div>
+                    <strong>ggT(${num1}, ${num2}):</strong>
+                    ${ggt}
+                </div>
+
+                <hr>
+
+                <div class="answer">
+                    kgV(${num1}, ${num2}) = ${kgv}
+                </div>
+            `;
+        });
+
+        // Alle Eingaben und das Ergebnis zurücksetzen
+        form.addEventListener("reset", function() {
+            resultBox.textContent = "";
+            resultBox.className = "";
+        });
+
+        // Zur Startseite wechseln
+        document.getElementById("homeBtn").addEventListener(
+            "click",
+            function() {
+                window.location.href = "index.html";
+            }
+        );
+    </script>
+
+</body>
+</html>
