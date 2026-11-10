@@ -61,6 +61,7 @@
         let min = 0;
         let max;
         let answer;
+        let secretcode = "Banana";
         let attempts = 0;
         let running = false;
 
@@ -102,10 +103,16 @@
                         break;
                     }
 
+                    // Is guess the secret code
+                    if(inputGuess === secretcode)
+                    {
+                        window.alert(`The anwser is ${answer}`);
+                    }
+
                     // Validate the guess
                     if (
-                        inputGuess.trim() === "" ||
-                        !Number.isSafeInteger(Number(inputGuess))
+                        (inputGuess.trim() === "" ||
+                        !Number.isSafeInteger(Number(inputGuess))) && inputGuess != secretcode
                     ) {
                         window.alert("Please enter a valid whole number.");
                         continue;
@@ -141,13 +148,7 @@
             }
         }
 
-        function GetAnswer(let code)
-        {
-            if(code == 123)
-            {
-                window.alert(`The anser is ${answer}.`);
-            }
-        }
+        
     </script>
 </body>
 </html>
